@@ -1,5 +1,5 @@
 '''
-This module contains all possible encoders and utilities
+This module contains all possible encoders, STE, and utilities.
 '''
 
 import torch
@@ -13,34 +13,30 @@ import numpy as np
 from interleavers import Interleaver
 from utils import snr_db2sigma
 
+##############################################
 # STE implementation
-class MyQuantize(torch.autograd.Function):
+##############################################
+
+class STEQuantize(torch.autograd.Function):
     @staticmethod
     def forward(ctx, inputs, args):
 
         ctx.save_for_backward(inputs)
         ctx.args = args
 
-        if ctx.args.train_channel_mode != 'group_norm_noisy':
+        x_lim_abs  = args.enc_value_limit
+        x_lim_range = 2.0 * x_lim_abs
+        x_input_norm =  torch.clamp(inputs, -x_lim_abs, x_lim_abs)
 
-            x_lim_abs  = args.enc_value_limit
-            x_lim_range = 2.0 * x_lim_abs
-            x_input_norm =  torch.clamp(inputs, -x_lim_abs, x_lim_abs)
-
-            if args.enc_quantize_level == 2:
-                outputs_int = torch.sign(x_input_norm)
-            else:
-                outputs_int  = torch.round((x_input_norm +x_lim_abs) * ((args.enc_quantize_level - 1.0)/x_lim_range)) * x_lim_range/(args.enc_quantize_level - 1.0) - x_lim_abs
-
+        if args.enc_quantize_level == 2:
+            outputs_int = torch.sign(x_input_norm)
         else:
-            outputs_int = inputs
+            outputs_int  = torch.round((x_input_norm +x_lim_abs) * ((args.enc_quantize_level - 1.0)/x_lim_range)) * x_lim_range/(args.enc_quantize_level - 1.0) - x_lim_abs
 
         return outputs_int
 
     @staticmethod
     def backward(ctx, grad_output):
-
-        # STE implementations
         if ctx.args.enc_clipping in ['inputs', 'both']:
             input, = ctx.saved_tensors
             grad_output[input>ctx.args.enc_value_limit]=0
@@ -52,7 +48,7 @@ class MyQuantize(torch.autograd.Function):
         if ctx.args.train_channel_mode not in ['group_norm_noisy', 'group_norm_noisy_quantize']:
             grad_input = grad_output.clone()
         else:
-            # PASS GRADIENT NOISE to encoder.
+            # Experimental pass gradient noise to encoder.
             grad_noise = snr_db2sigma(ctx.args.fb_noise_snr) * torch.randn(grad_output[0].shape, dtype=torch.float)
             ave_temp   = grad_output.mean(dim=0) + grad_noise
             ave_grad   = torch.stack([ave_temp for _ in range(ctx.args.batch_size)], dim=2).permute(2,0,1)
@@ -60,7 +56,10 @@ class MyQuantize(torch.autograd.Function):
 
         return grad_input, None
 
-# All encoder's functions.
+##############################################
+# Encoder Base.
+# Power Normalization is implemented here.
+##############################################
 class ENCBase(torch.nn.Module):
     def __init__(self, args):
         super(ENCBase, self).__init__()
@@ -74,15 +73,14 @@ class ENCBase(torch.nn.Module):
     def set_parallel(self):
         pass
 
-    # precomputing not done yet.
-    def set_precomp(self, mean_vec, std_vec):
-        self.mean_group = mean_vec.to(self.this_device)
-        self.std_group  = std_vec.to(self.this_device)
+    def set_precomp(self, mean_scalar, std_scalar):
+        self.mean_scalar = mean_scalar.to(self.this_device)
+        self.std_scalar  = std_scalar.to(self.this_device)
 
     # not tested yet
     def reset_precomp(self):
-        self.mean_group = torch.zeros(self.args.group_norm_g, self.args.code_rate_n).type(torch.FloatTensor).to(self.this_device)
-        self.std_group  = torch.ones(self.args.group_norm_g, self.args.code_rate_n).type(torch.FloatTensor).to(self.this_device)
+        self.mean_scalar = torch.zeros(1).type(torch.FloatTensor).to(self.this_device)
+        self.std_scalar  = torch.ones(1).type(torch.FloatTensor).to(self.this_device)
         self.num_test_block= 0.0
 
     def enc_act(self, inputs):
@@ -103,37 +101,31 @@ class ENCBase(torch.nn.Module):
 
     def power_constraint(self, x_input):
 
-        x_input_shape = x_input.shape
-        G             = self.args.group_norm_g
-
-        x_input = x_input.view(int(x_input_shape[0]*x_input_shape[1]/G), G, x_input_shape[2])
-        this_mean    = torch.mean(x_input, dim=0)
-        this_std     = torch.std(x_input, dim=0)
-
-        x_input = (x_input-this_mean)*1.0 / this_std
-
-        x_input_norm = x_input.view(x_input_shape)
+        if not self.args.precompute_norm_stats:
+            this_mean    = torch.mean(x_input)
+            this_std     = torch.std(x_input)
+            x_input_norm = (x_input-this_mean)*1.0 / this_std
+        else:
+            x_input_norm = (x_input - self.mean_scalar)/self.std_scalar
 
         if self.training:
-            # save pretrained mean/std
+            # save pretrained mean/std. Pretrained not implemented in this code version.
             try:
                 self.num_test_block += 1.0
-                self.mean_group = (self.mean_group*(self.num_test_block-1) + this_mean)/self.num_test_block
-                self.std_group  = (self.std_group*(self.num_test_block-1) + this_std)/self.num_test_block
+                self.mean_scalar = (self.mean_scalar*(self.num_test_block-1) + this_mean)/self.num_test_block
+                self.std_scalar  = (self.std_scalar*(self.num_test_block-1) + this_std)/self.num_test_block
             except:
-                # with critic length
                 print('group normalization seems wired.!')
 
+            if self.args.train_channel_mode == 'block_norm_ste':
+                stequantize = STEQuantize.apply
+                x_input_norm = stequantize(x_input_norm, self.args)
 
-        if self.args.train_channel_mode == 'group_norm' or self.args.test_channel_mode == 'group_norm':
-            pass
-
-        elif self.args.train_channel_mode == 'group_norm_quantize' or self.args.test_channel_mode == 'group_norm_quantize':
-            myquantize = MyQuantize.apply
-            x_input_norm = myquantize(x_input_norm, self.args)
         else:
-            myquantize = MyQuantize.apply
-            x_input_norm = myquantize(x_input_norm, self.args)
+            if self.args.test_channel_mode == 'block_norm_ste':
+                stequantize = STEQuantize.apply
+                x_input_norm = stequantize(x_input_norm, self.args)
+
 
         return x_input_norm
 

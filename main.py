@@ -170,9 +170,7 @@ if __name__ == '__main__':
     #################################################
     # Training Processes
     #################################################
-
-    report_loss, report_ber, report_MI = [], [], []
-    baseline    = 0.0
+    report_loss, report_ber = [], []
 
     for epoch in range(1, args.num_epoch + 1):
 

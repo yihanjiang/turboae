@@ -48,7 +48,6 @@ def train(epoch, model, optimizer, args, use_cuda = False, verbose = True, mode 
 
         loss.backward()
         train_loss += loss.item()
-
         optimizer.step()
 
     end_time = time.time()
@@ -90,21 +89,17 @@ def validate(model, optimizer, args, use_cuda = False, verbose = True):
     test_bce_loss /= num_test_batch
     test_custom_loss /= num_test_batch
     test_ber  /= num_test_batch
-    # test_MI  = compute_MI(codes.cpu().detach(), fwd_noise.cpu().detach())
 
     if verbose:
         print('====> Test set BCE loss', float(test_bce_loss),
               'Custom Loss',float(test_custom_loss),
               'with ber ', float(test_ber),
-              #'with Mutual Information',float(test_MI)
         )
 
     report_loss = float(test_bce_loss)
     report_ber  = float(test_ber)
-    #report_MI   = float(test_MI)
 
-
-    return report_loss, report_ber, None
+    return report_loss, report_ber
 
 
 def test(model, args, use_cuda = False):
@@ -112,18 +107,25 @@ def test(model, args, use_cuda = False):
     device = torch.device("cuda" if use_cuda else "cpu")
     model.eval()
 
+    # Precomputes Norm Statistics.
+    if args.precompute_norm_stats:
+        num_test_batch = int(args.num_block/(args.batch_size)* args.test_ratio)
+        for batch_idx in range(num_test_batch):
+            X_test = torch.randint(0, 2, (args.batch_size, args.block_len, args.code_rate_k), dtype=torch.float)
+            X_test = X_test.to(device)
+            _      = model.enc(X_test)
+        print('Pre-computed norm statistics mean ',model.enc.mean_scalar, 'std ', model.enc.std_scalar)
+
     ber_res, bler_res = [], []
     snr_interval = (args.snr_test_end - args.snr_test_start)* 1.0 /  (args.snr_points-1)
     snrs = [snr_interval* item + args.snr_test_start for item in range(args.snr_points)]
     print('SNRS', snrs)
     sigmas = snrs
 
-    num_train_block =  args.num_block
-
     for sigma, this_snr in zip(sigmas, snrs):
         test_ber, test_bler = .0, .0
         with torch.no_grad():
-            num_test_batch = int(num_train_block/(args.batch_size)* args.test_ratio)
+            num_test_batch = int(args.num_block/(args.batch_size)* args.test_ratio)
             for batch_idx in range(num_test_batch):
                 X_test     = torch.randint(0, 2, (args.batch_size, args.block_len, args.code_rate_k), dtype=torch.float)
                 fwd_noise  = generate_noise(X_test.shape, args, test_sigma=sigma)
@@ -172,21 +174,6 @@ def test(model, args, use_cuda = False):
     print('adjusted SNR should be',adj_snrs)
 
 
-
-def compute_MI(codes, fwd_noise):
-    codes = codes.numpy()
-    fwd_noise = fwd_noise.numpy()
-
-    recs = codes + fwd_noise
-    Y = recs.reshape(recs.shape[0], recs.shape[1]*recs.shape[2],1 )
-    X = codes.reshape(codes.shape[0], codes.shape[1]*codes.shape[2],1 )
-    res = 0.0
-    for idx in range(10):
-        res += kraskov_mi(X[idx],Y[idx])/np.log(2.0)
-
-    res /= 10
-
-    return res
 
 
 

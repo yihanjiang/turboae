@@ -168,7 +168,9 @@ def get_args():
     parser.add_argument('--print_pos_power', action='store_true', default=False,
                         help='print positional power when testing BER')
     parser.add_argument('--print_test_traj', action='store_true', default=False,
-                        help='print positional power when testing BER')
+                        help='print test trajectory when testing BER')
+    parser.add_argument('--precompute_norm_stats', action='store_true', default=False,
+                        help='Use pre-computed mean/std statistics')
 
 
     args = parser.parse_args()
