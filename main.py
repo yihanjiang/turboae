@@ -29,28 +29,28 @@ class Logger(object):
 def import_enc(args):
     # choose encoder
 
-    if args.encoder == 'dta_rate3_rnn':
+    if args.encoder == 'TurboAE_rate3_rnn':
         from encoders import ENC_interRNN as ENC
 
-    elif args.encoder == 'dta_rate3_cnn':
+    elif args.encoder == 'TurboAE_rate3_cnn':
         from encoders import ENC_interCNN as ENC
 
-    elif args.encoder == 'dta_rate3_cnn_2inter':
+    elif args.encoder == 'TurboAE_rate3_cnn_2inter':
         from encoders import ENC_interCNN2Int as ENC
 
     elif args.encoder == 'rate3_cnn':
         from encoders import CNN_encoder_rate3 as ENC
 
-    elif args.encoder == 'dta_rate3_cnn2d':
+    elif args.encoder == 'TurboAE_rate3_cnn2d':
         from encoders import ENC_interCNN2D as ENC
 
-    elif args.encoder == 'dta_rate3_rnn_sys':
+    elif args.encoder == 'TurboAE_rate3_rnn_sys':
         from encoders import ENC_interRNN_sys as ENC
 
-    elif args.encoder == 'dta_rate2_rnn':
+    elif args.encoder == 'TurboAE_rate2_rnn':
         from encoders import ENC_turbofy_rate2 as ENC
 
-    elif args.encoder == 'dta_rate2_cnn':
+    elif args.encoder == 'TurboAE_rate2_cnn':
         from encoders import ENC_turbofy_rate2_CNN as ENC  # not done yet
 
     else:
@@ -60,25 +60,25 @@ def import_enc(args):
 
 def import_dec(args):
 
-    if args.decoder == 'dta_rate2_rnn':
+    if args.decoder == 'TurboAE_rate2_rnn':
         from decoders import DEC_LargeRNN_rate2 as DEC
 
-    elif args.decoder == 'dta_rate2_cnn':
+    elif args.decoder == 'TurboAE_rate2_cnn':
         from decoders import DEC_LargeCNN_rate2 as DEC  # not done yet
 
-    elif args.decoder == 'dta_rate3_cnn':
+    elif args.decoder == 'TurboAE_rate3_cnn':
         from decoders import DEC_LargeCNN as DEC
 
-    elif args.decoder == 'dta_rate3_cnn_2inter':
+    elif args.decoder == 'TurboAE_rate3_cnn_2inter':
         from decoders import DEC_LargeCNN2Int as DEC
 
     elif args.encoder == 'rate3_cnn':
         from decoders import CNN_decoder_rate3 as DEC
 
-    elif args.decoder == 'dta_rate3_cnn2d':
+    elif args.decoder == 'TurboAE_rate3_cnn2d':
         from decoders import DEC_LargeCNN2D as DEC
 
-    elif args.decoder == 'dta_rate3_rnn':
+    elif args.decoder == 'TurboAE_rate3_rnn':
         from decoders import DEC_LargeRNN as DEC
 
     elif args.decoder == 'nbcjr_rate3':                # ICLR 2018 paper
@@ -156,9 +156,8 @@ if __name__ == '__main__':
     print(model)
 
 
-
     #################################################
-    # Setup Optimizers, only Adam works
+    # Setup Optimizers, only Adam works for now.
     #################################################
     if args.num_train_enc != 0:
         enc_optimizer = optim.Adam(model.enc.parameters(),lr=args.enc_lr)

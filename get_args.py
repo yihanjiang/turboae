@@ -7,27 +7,26 @@ def get_args():
     ################################
     parser = argparse.ArgumentParser()
 
-    parser.add_argument('-encoder', choices=['dta_rate3_rnn',      # DTA Encoder, rate 1/3, RNN
-                                             'dta_rate3_rnn_sys',  # DTA Encoder, rate 1/3, Systematic Bit hard coded
-                                             'dta_rate3_cnn',      # DTA Encoder, rate 1/3, Same Shape 1D CNN encoded.
-                                             'dta_rate3_cnn_2inter', # DTA rate 1/3 CNN with 2 interleavers!
-                                             'dta_rate3_cnn2d',    # DTA Encoder, rate 1/3, Same Shape 2D CNN encoded.
-                                             'dta_rate2_rnn',      # DTA Encoder, rate 1/2, RNN
-                                             'dta_rate2_cnn',      # DTA Encoder, rate 1/2, Same Shape 1D CNN encoded.(TBD)
-                                             'rate3_cnn'           # CNN Encoder, rate 1/3. No Interleaver
+    parser.add_argument('-encoder', choices=['Turboae_rate3_rnn',      # TurboAE Encoder, rate 1/3, RNN
+                                             'TurboAE_rate3_rnn_sys',  # TurboAE Encoder, rate 1/3, Systematic Bit hard coded.
+                                             'TurboAE_rate3_cnn',      # TurboAE Encoder, rate 1/3, Same Shape 1D CNN encoded.
+                                             'TurboAE_rate3_cnn2d',    # TurboAE Encoder, rate 1/3, Same Shape 2D CNN encoded.
+                                             'TurboAE_rate2_rnn',      # TurboAE Encoder, rate 1/2, RNN
+                                             'TurboAE_rate2_cnn',      # TurboAE Encoder, rate 1/2, Same Shape 1D CNN encoded.(TBD)
+                                             'rate3_cnn'               # CNN Encoder, rate 1/3. No Interleaver
                                             ],
-                        default='dta_rate3_cnn2d')
+                        default='TurboAE_rate3_cnn2d')
 
-    parser.add_argument('-decoder', choices=['dta_rate3_rnn',      # DTA Decoder, rate 1/3
-                                             'dta_rate3_cnn',      # DTA Decoder, rate 1/3, Same Shape 1D CNN Decoder
-                                             'dta_rate3_cnn_2inter', # DTA rate 1/3 CNN with 2 interleavers!
-                                             'dta_rate3_cnn2d',    # DTA Encoder, rate 1/3, Same Shape 2D CNN encoded.
-                                             'dta_rate2_rnn',      # DTA Decoder, rate 1/2
-                                             'dta_rate2_cnn',      # DTA Decoder, rate 1/2
+    parser.add_argument('-decoder', choices=['TurboAE_rate3_rnn',      # TurboAE Decoder, rate 1/3
+                                             'TurboAE_rate3_cnn',      # TurboAE Decoder, rate 1/3, Same Shape 1D CNN Decoder
+                                             'TurboAE_rate3_cnn_2inter', # TurboAE rate 1/3 CNN with 2 interleavers!
+                                             'TurboAE_rate3_cnn2d',    # TurboAE Encoder, rate 1/3, Same Shape 2D CNN encoded.
+                                             'TurboAE_rate2_rnn',      # TurboAE Decoder, rate 1/2
+                                             'TurboAE_rate2_cnn',      # TurboAE Decoder, rate 1/2
                                              'nbcjr_rate3',        # NeuralBCJR Decoder, rate 1/3, allow ft size.
                                              'rate3_cnn'           # CNN Encoder, rate 1/3. No Interleaver
                                             ],
-                        default='dta_rate3_cnn2d')
+                        default='TurboAE_rate3_cnn2d')
     ################################################################
     # Channel related parameters
     ################################################################
@@ -62,16 +61,13 @@ def get_args():
 
     parser.add_argument('-init_nw_weight', type=str, default='default')
 
-    # code rate is k/n, so that enable multiple code rates.
+    # code rate is k/n, so that enable multiple code rates. This has to match the encoder/decoder nw structure.
     parser.add_argument('-code_rate_k', type=int, default=1)
     parser.add_argument('-code_rate_n', type=int, default=3)
 
     ################################################################
-    # DTA encoder/decoder parameters
+    # TurboAE encoder/decoder parameters
     ################################################################
-    parser.add_argument('-enc_type', choices=['bd', 'sd'], default='bd') # not functional
-    parser.add_argument('-dec_type', choices=['bd', 'sd'], default='bd') # not functional
-
     parser.add_argument('-enc_rnn', choices=['gru', 'lstm', 'rnn'], default='gru')
     parser.add_argument('-dec_rnn', choices=['gru', 'lstm', 'rnn'], default='gru')
 
@@ -85,30 +81,22 @@ def get_args():
     parser.add_argument('-enc_kernel_size', type=int, default=5)
     parser.add_argument('-dec_kernel_size', type=int, default=5)
 
-    # RNN related
+    # CNN/RNN related
     parser.add_argument('-enc_num_layer', type=int, default=2)
     parser.add_argument('-dec_num_layer', type=int, default=5)
 
-    parser.add_argument('-enc_num_unit', type=int, default=100)
-    parser.add_argument('-dec_num_unit', type=int, default=100)
+    parser.add_argument('-enc_num_unit', type=int, default=100, help = 'This is CNN number of filters, and RNN units')
+    parser.add_argument('-dec_num_unit', type=int, default=100, help = 'This is CNN number of filters, and RNN units')
 
-    parser.add_argument('-enc_act', choices=['tanh', 'selu', 'relu', 'elu', 'sigmoid', 'linear'], default='elu')
+    parser.add_argument('-enc_act', choices=['tanh', 'selu', 'relu', 'elu', 'sigmoid', 'linear'], default='elu', help='only elu works')
     parser.add_argument('-dec_act', choices=['tanh', 'selu', 'relu', 'elu', 'sigmoid', 'linear'], default='linear')
 
-
-    ################################################################
-    # STE related parameters
-    ################################################################
-    parser.add_argument('-enc_quantize_level', type=float, default=2, help = 'only valid for group_norm')
-    parser.add_argument('-enc_value_limit', type=float, default=1.0, help = 'only valid for group_norm quantization')
-    parser.add_argument('-enc_grad_limit', type=float, default=0.01, help = 'only valid for group_norm quantization')
-    parser.add_argument('-enc_clipping', choices=['inputs', 'gradient', 'both', 'default'], default='both', help = 'only valid for group_norm quantization')
 
     ################################################################
     # Training ALgorithm related parameters
     ################################################################
     parser.add_argument('-joint_train', type=int, default=0, help ='if 1, joint train enc+dec, 0: seperate train')
-    parser.add_argument('-num_train_dec', type=int, default=1, help ='')
+    parser.add_argument('-num_train_dec', type=int, default=5, help ='')
     parser.add_argument('-num_train_enc', type=int, default=1, help ='')
 
     parser.add_argument('-dropout',type=float, default=0.0)
@@ -117,32 +105,38 @@ def get_args():
     parser.add_argument('-snr_test_end', type=float, default=4.0)
     parser.add_argument('-snr_points', type=int, default=12)
 
-    parser.add_argument('-batch_size', type=int, default=10)
+    parser.add_argument('-batch_size', type=int, default=500)
     parser.add_argument('-num_epoch', type=int, default=1)
     parser.add_argument('-test_ratio', type=int, default=1,help = 'only for high SNR testing')
     parser.add_argument('-block_len', type=int, default=100)
     parser.add_argument('-img_size', type=int, default=10, help='only used for CNN 2D structures')
 
-    parser.add_argument('-num_block', type=int, default=100)
+    parser.add_argument('-num_block', type=int, default=50000)
 
     parser.add_argument('-test_channel_mode',
-                        choices=['group_norm','group_norm_quantize',  'group_norm_noisy', 'group_norm_noisy_quantize'],
-                        default='group_norm_noisy')
+                        choices=['block_norm','block_norm_ste'],
+                        default='block_norm')
     parser.add_argument('-train_channel_mode',
-                        choices=['group_norm','group_norm_quantize',  'group_norm_noisy', 'group_norm_noisy_quantize'],
-                        default='group_norm_noisy')
+                        choices=['block_norm','block_norm_ste'],
+                        default='block_norm')
 
-    parser.add_argument('-fb_noise_snr', type = float, default=10.0)
-    parser.add_argument('-group_norm_g', type = int, default=1)
+
+    ################################################################
+    # STE related parameters
+    ################################################################
+    parser.add_argument('-enc_quantize_level', type=float, default=2, help = 'only valid for block_norm_ste')
+    parser.add_argument('-enc_value_limit', type=float, default=1.0, help = 'only valid for block_norm_ste')
+    parser.add_argument('-enc_grad_limit', type=float, default=0.01, help = 'only valid for block_norm_ste')
+    parser.add_argument('-enc_clipping', choices=['inputs', 'gradient', 'both', 'default'], default='both',
+                        help = 'only valid for ste')
 
     ################################################################
     # Optimizer related parameters
     ################################################################
-    parser.add_argument('-optimizer', choices=['adam', 'momentum', 'rmsprop', 'adagrad'], default='adam')
+    parser.add_argument('-optimizer', choices=['adam'], default='adam', help = 'Only Adam works well.')
     parser.add_argument('-dec_lr', type = float, default=0.001, help='decoder leanring rate')
     parser.add_argument('-enc_lr', type = float, default=0.001, help='encoder leanring rate')
     parser.add_argument('-momentum', type = float, default=0.9)
-
     parser.add_argument('-clip_norm', type = float, default=1.0)
 
     ################################################################
