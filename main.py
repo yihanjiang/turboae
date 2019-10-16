@@ -1,7 +1,7 @@
 __author__ = 'yihanjiang'
-# update 04/25/2019. Target to publish the code to NeurIPS for Deep Turbo Autoencoder (DTA)
-# Use Python3
-# Only contain Turbo Related Components. Discard all non-Turbo things
+# update 10/18/2019, code to replicate TurboAE paper in NeurIPS 2019.
+# Tested on PyTorch 1.0.
+# TBD: remove all non-TurboAE related functions.
 
 import torch
 import torch.optim as optim
@@ -25,7 +25,6 @@ class Logger(object):
 
     def flush(self):
         pass
-
 
 def import_enc(args):
     # choose encoder
@@ -112,18 +111,17 @@ if __name__ == '__main__':
     DEC = import_dec(args)
 
     # setup interleaver.
-    if args.is_interleave == 1:
+    if args.is_interleave == 1:           # fixed interleaver.
         seed = np.random.randint(0, 1)
         rand_gen = mtrand.RandomState(seed)
         p_array = rand_gen.permutation(arange(args.block_len))
 
     elif args.is_interleave == 0:
-        p_array = range(args.block_len)
+        p_array = range(args.block_len)   # no interleaver.
     else:
         seed = np.random.randint(0, args.is_interleave)
         rand_gen = mtrand.RandomState(seed)
         p_array = rand_gen.permutation(arange(args.block_len))
-
 
         print('using random interleaver', p_array)
 
@@ -160,7 +158,7 @@ if __name__ == '__main__':
 
 
     #################################################
-    # Setup Optimizers
+    # Setup Optimizers, only Adam works
     #################################################
     if args.num_train_enc != 0:
         enc_optimizer = optim.Adam(model.enc.parameters(),lr=args.enc_lr)
@@ -192,15 +190,13 @@ if __name__ == '__main__':
                 for idx in range(args.num_train_dec):
                     train(epoch, model, dec_optimizer, args, use_cuda = use_cuda, mode ='decoder')
 
-        this_loss, this_ber, this_MI = validate(model, general_optimizer, args, use_cuda = use_cuda)
+        this_loss, this_ber, _ = validate(model, general_optimizer, args, use_cuda = use_cuda)
         report_loss.append(this_loss)
         report_ber.append(this_ber)
-        report_MI.append(this_MI)
 
     if args.print_test_traj == True:
         print('test loss trajectory', report_loss)
         print('test ber trajectory', report_ber)
-        #print('test MI estimated', report_MI)
         print('total epoch', args.num_epoch)
 
     #################################################
