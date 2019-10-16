@@ -32,18 +32,18 @@ def train(epoch, model, optimizer, args, use_cuda = False, verbose = True, mode 
 
         # train encoder/decoder with different SNR... seems to be a good practice.
         if mode == 'encoder':
-            fwd_noise  = generate_noise(X_train.shape, args, snr_low=args.train_channel_low, snr_high=args.train_channel_high, mode = 'encoder')
+            fwd_noise  = generate_noise(X_train.shape, args, snr_low=args.train_enc_channel_low, snr_high=args.train_enc_channel_high, mode = 'encoder')
         else:
             fwd_noise  = generate_noise(X_train.shape, args, snr_low=args.train_dec_channel_low, snr_high=args.train_dec_channel_high, mode = 'decoder')
 
         X_train, fwd_noise = X_train.to(device), fwd_noise.to(device)
 
         output, code = model(X_train, fwd_noise)
+        output = torch.clamp(output, 0.0, 1.0)
 
         if mode == 'encoder':
             loss = customized_loss(output, X_train, args, noise=fwd_noise, code = code)
         else:
-            output = torch.clamp(output, 0.0, 1.0)
             loss = F.binary_cross_entropy(output, X_train)
 
         loss.backward()
