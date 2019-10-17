@@ -8,7 +8,8 @@ Required library: test on Python 3.6.11+ PyTorch 1.0.
 Feel free to ask me any question! yij021@uw.edu
 
 # What is new: 
-## 1. Drafty paper (main.pdf and supplement.pdf) put in [here](https://github.com/yihanjiang/turboae/blob/master/docs/. Camera-ready paper under construction. Slides under construction.
+## 1. Drafty paper (main.pdf and supplement.pdf) put in  [here](https://github.com/yihanjiang/turboae/blob/master/docs/) 
+Camera-ready paper under construction. Slides under construction.
 
 ## 2. Pre-trained model under refining. Current *.pt in './models/' are not the best model. (But you can finetune them easily) 
 
