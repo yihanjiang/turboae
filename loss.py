@@ -27,7 +27,6 @@ class FocalLoss(nn.Module):
         else:
             return F_loss
 
-
 def customized_loss(output, X_train, args, size_average = True, noise = None, code = None):
 
     if args.loss == 'bce':
@@ -37,7 +36,9 @@ def customized_loss(output, X_train, args, size_average = True, noise = None, co
         else:
             return [F.binary_cross_entropy(item1, item2) for item1, item2 in zip(output, X_train)]
 
-    # experimental
+    ##########################################################################################
+    # The result are all experimental, nothing works..... BCE works well.
+    ##########################################################################################
     elif args.loss == 'bce_rl':
         output = torch.clamp(output, 0.0, 1.0)
 
@@ -50,7 +51,6 @@ def customized_loss(output, X_train, args, size_average = True, noise = None, co
 
         loss = args.ber_lambda * torch.mean(ber_loss*bce_loss) + args.bce_lambda * bce_loss.mean()
 
-    # experimental
     elif args.loss == 'enc_rl':
         output = torch.clamp(output, 0.0, 1.0)
 
@@ -85,8 +85,6 @@ def customized_loss(output, X_train, args, size_average = True, noise = None, co
         max_loss     = torch.mean(tmp)
 
         loss = bce_loss + args.lambda_maxBCE * max_loss
-
-
 
     return loss
 
