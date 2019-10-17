@@ -70,8 +70,8 @@ It will be appreciated to share some well-trained model for longer block length,
 
 To run with the same training interleaving, simple do `-is_interleave 1`, to use:
 
-    CUDA_VISIBLE_DEVICES=0 python3.6 main.py -encoder dta_rate3_cnn -decoder dta_rate3_cnn -enc_num_unit 100 -enc_num_layer 2 -dec_num_unit 100 -dec_num_layer 5 -num_iter_ft 5 -channel awgn -num_train_dec 5 -num_train_enc 1 -code_rate_k 1 -code_rate_n 3 -group_norm_g 1 -train_channel_low 2.0 -train_channel_high 2.0 -snr_test_start -1.5 -snr_test_end 4.0 -snr_points 12 -num_iteration 6 -is_parallel 1 -train_dec_channel_low -1.5 -train_dec_channel_high 2.0 -is_same_interleaver 1 -is_interleave 1 -dec_lr 0.0001 -enc_lr 0.0001 -num_block 100000 -batch_size 1000 -train_channel_mode group_norm -test_channel_mode group_norm -num_epoch 0 --print_test_traj -loss bce -init_nw_weight ./models/dta_cont_cnn2_cnn5_enctrain2_dectrainneg15_2.pt
-    
+    CUDA_VISIBLE_DEVICES=0 python3.6 main.py -encoder TurboAE_rate3_cnn -decoder TurboAE_rate3_cnn -enc_num_unit 100 -enc_num_layer 5 -dec_num_unit 100 -dec_num_layer 5 -num_iter_ft 5 -channel awgn -num_train_dec 5 -num_train_enc 1 -code_rate_k 1 -code_rate_n 3 -train_enc_channel_low 1.0 -train_enc_channel_high 1.0  -snr_test_start -1.5 -snr_test_end 4.0 -snr_points 12 -num_iteration 6 -is_parallel 1 -train_dec_channel_low -1.5 -train_dec_channel_high 2.0 -is_same_interleaver 1 -dec_lr 0.0001 -enc_lr 0.0001 -num_block 50000 -batch_size 500 -train_channel_mode block_norm -test_channel_mode block_norm -num_epoch 0 --print_test_traj -loss bce -is_interleave 1 -init_nw_weight ./models/dta_cont_cnn2_cnn5_enctrain2_dectrainneg15_2.pt
+
 To run with a random interleaver, use `-is_interleave n`, as `n` is the random seed. To not use interleaver, use `-is_interleave 0` argument.
 
 
