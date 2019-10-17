@@ -67,7 +67,9 @@ def validate(model, optimizer, args, use_cuda = False, verbose = True):
         num_test_batch = int(args.num_block/args.batch_size * args.test_ratio)
         for batch_idx in range(num_test_batch):
             X_test     = torch.randint(0, 2, (args.batch_size, args.block_len, args.code_rate_k), dtype=torch.float)
-            fwd_noise  = generate_noise(X_test.shape, args, snr_low=args.train_channel_low, snr_high=args.train_channel_high)
+            fwd_noise  = generate_noise(X_test.shape, args,
+                                        snr_low=args.train_enc_channel_low,
+                                        snr_high=args.train_enc_channel_low)
 
             X_test, fwd_noise= X_test.to(device), fwd_noise.to(device)
 
