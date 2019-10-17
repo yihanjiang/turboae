@@ -5,15 +5,25 @@ Designing channel code via deep learning, inspired by Turbo code, we can achieve
 
 ## If you use CNN and RNN as encoder and decoder, you can only get:
 
-![Image of Yaktocat](https://github.com/yihanjiang/turboae/tree/master/docs/cnn_ae.png)
+
+![Image of CNN-AE](./docs/cnn_ae.png)
 
 ## Use interleaving and iterative decoding, as well as the algorithm shown in more detail in paper, you can have:
 
-![Image of TurboAE](https://github.com/yihanjiang/turboae/tree/master/docs/turbo_ae.png)
+![Image of TurboAE](./docs/turbo_ae.png)
 
 Required library: test on Python 3.6.11+ PyTorch 1.0.
 
+If feel inspired, please consider cite (I will update the link when arxiv version is out.):
 
+    @inproceedings{jiang2019turboae,
+      title={Turbo Autoencoder: Deep learning based channel code for point-to-point communication channels},
+      author={Jiang, Yihan and Kim, Hyeji and Asnani, Himanshu and Kannan, Sreeram and Oh, Sewoong and Viswanath, Pramod},
+      booktitle={NeurIPS 2019},
+      pages={},
+      year={2019},
+      organization={Vancouver}
+    }
 
 Feel free to ask me any question! yij021@uw.edu
 
