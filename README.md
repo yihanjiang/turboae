@@ -3,11 +3,12 @@ Turbo Autoencoder code for paper: `Y. Jiang, H. Kim, H. Asnani, S. Kannan, S. Oh
 
 At medium block length, we can achieve comparable performance to near-optimal codes such as LDPC, Polar, and Turbo Code, solely via gradient descent! 
 
-**If you use CNN and RNN as encoder and decoder, you can only get left.:**
+**If you use CNN and RNN as encoder and decoder, you can only get below graph left.**
+
+**Use interleaving and iterative decoding, as well as the algorithm shown in more detail in paper, you can have below graph right.**
 
 ![Performance of TurboAE](./docs/turboae_perf.png)
 
-**Use interleaving and iterative decoding, as well as the algorithm shown in more detail in paper, you can have right:**
 
 
 Required library: test on Python 3.6.11+ PyTorch 1.0.
