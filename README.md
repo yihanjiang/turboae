@@ -1,9 +1,19 @@
 # Turbo AE
-Turbo Autoencoder drafty code for paper: Y. Jiang, H. Kim, H. Asnani, S. Kannan, S. Oh, P. Viswanath, "Turbo Autoencoder: Deep learning based channel code for point-to-point communication channels" Conference on Neural Information Processing Systems (NeurIPS), Vancouver, December 2019
+Turbo Autoencoder code for paper: Y. Jiang, H. Kim, H. Asnani, S. Kannan, S. Oh, P. Viswanath, "Turbo Autoencoder: Deep learning based channel code for point-to-point communication channels" Conference on Neural Information Processing Systems (NeurIPS), Vancouver, December 2019
 
-Note: this code is very drafty, and the final version will be out with camera ready paper. Paper camera-ready date is late October. Update ongoing.
+Designing channel code via deep learning, inspired by Turbo code, we can achieve comparable performance against near-optimal codes such as LDPC, Polar, and Turbo Code, solely via gradient descent!
+
+
+![Image of Yaktocat]
+(https://github.com/yihanjiang/turboae/tree/master/docs/cnn_ae.png )
+
+![Image of TurboAE]
+(https://github.com/yihanjiang/turboae/tree/master/docs/turbo_ae.png )
+
 
 Required library: test on Python 3.6.11+ PyTorch 1.0.
+
+
 
 Feel free to ask me any question! yij021@uw.edu
 
