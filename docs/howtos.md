@@ -9,9 +9,11 @@ Try run with different random seed, the performance differs!
 LDPC, Polar and Turbo are from MATLAB simulation, is from Vienna Simulator, which requires licence. The detailed setup is shown in paper appendix.
 
 The Turbo Code benchmark is from Commpy, as in folder ./commpy/turbo_code_benchmarks.py. For block length 100, use the following command:
+    
     python turbo_codes_benchmark.py -enc1 7 -enc2 5 -feedback 7 -M 2 -num_block 100000 -block_len 100 -num_cpu 4 -snr_test_start -1.5 -snr_test_end 2.0 -snr_points 8
 
 By default it runs Turbo-757, but if you need Turbo-LTE, simply run:
+    
     python turbo_codes_benchmark.py -enc1 13 -enc2 11 -feedback 13 -M 3 -num_block 100000 -block_len 100 -num_cpu 4 -snr_test_start -1.5 -snr_test_end 2.0 -snr_points 8
 
 Note that when running higher SNR, it is suggested to use more `-num_block` and more `-num_cpu` to get better estimation.
