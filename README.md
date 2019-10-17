@@ -3,13 +3,15 @@ Turbo Autoencoder code for paper: Y. Jiang, H. Kim, H. Asnani, S. Kannan, S. Oh,
 
 Designing channel code via deep learning, inspired by Turbo code, we can achieve comparable performance against near-optimal codes such as LDPC, Polar, and Turbo Code, solely via gradient descent!
 
+## If you use CNN and RNN as encoder and decoder, you can only get:
 
-![Image of Yaktocat]
-(https://github.com/yihanjiang/turboae/tree/master/docs/cnn_ae.png )
+![Image of Yaktocat](https://github.com/yihanjiang/turboae/tree/master/docs/cnn_ae.png)
 
-![Image of TurboAE]
-(https://github.com/yihanjiang/turboae/tree/master/docs/turbo_ae.png )
+## Use interleaving and iterative decoding, as well as the algorithm shown in more detail in paper, you can have:
 
+![Image of TurboAE](https://github.com/yihanjiang/turboae/tree/master/docs/turbo_ae.png)
+
+![Image of Yaktocat](https://octodex.github.com/images/yaktocat.png)
 
 Required library: test on Python 3.6.11+ PyTorch 1.0.
 
