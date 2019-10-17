@@ -11,8 +11,6 @@ Designing channel code via deep learning, inspired by Turbo code, we can achieve
 
 ![Image of TurboAE](https://github.com/yihanjiang/turboae/tree/master/docs/turbo_ae.png)
 
-![Image of Yaktocat](https://octodex.github.com/images/yaktocat.png)
-
 Required library: test on Python 3.6.11+ PyTorch 1.0.
 
 
