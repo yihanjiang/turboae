@@ -9,8 +9,6 @@ from utils import snr_sigma2db, snr_db2sigma, code_power, errors_ber_pos, errors
 from loss import customized_loss
 from channels import generate_noise
 
-import numpy as np
-from knnie.knnie import kraskov_mi
 ######################################################################################
 #
 # Trainer, validation, and test for AE code design

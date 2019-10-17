@@ -71,7 +71,6 @@ class Interleaver2D(torch.nn.Module):
 
         return res
 
-
 class DeInterleaver2D(torch.nn.Module):
     def __init__(self, args, p_array):
         super(DeInterleaver2D, self).__init__()

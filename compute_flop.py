@@ -1,12 +1,11 @@
 __author__ = 'yihanjiang'
+'''
+This is the utility function to compute FLOP, only can be used for TurboAE-CNN. RNN is not supported and hand-computed.
+Need to install thop.
+'''
 
 import torch
 import torch.nn.functional as F
-
-from numpy import arange
-from numpy.random import mtrand
-
-import numpy as np
 
 from interleavers import Interleaver, DeInterleaver
 
@@ -317,11 +316,8 @@ class DEC_LargeRNN(torch.nn.Module):
 
 
 import torch
-import torch.optim as optim
 import numpy as np
-import sys
 from get_args import get_args
-from trainer import train, validate, test
 
 from numpy import arange
 from numpy.random import mtrand
@@ -343,16 +339,12 @@ if args.is_interleave == 1:
     rand_gen = mtrand.RandomState(seed)
     p_array = rand_gen.permutation(arange(args.block_len))
 
-
-
 elif args.is_interleave == 0:
     p_array = range(args.block_len)
 else:
     seed = np.random.randint(0, args.is_interleave)
     rand_gen = mtrand.RandomState(seed)
     p_array = rand_gen.permutation(arange(args.block_len))
-
-
     print('using random interleaver', p_array)
 
 

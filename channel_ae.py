@@ -1,19 +1,12 @@
 __author__ = 'yihanjiang'
 import torch
 import torch.nn.functional as F
-
-
-
-# entering module for all AWGN based AEs. Input (signal, noise) output (signal_hat, codes)
 import commpy.channelcoding.interleavers as RandInterlv
 import numpy as np
-
-from numpy.random import mtrand
 
 class Channel_AE(torch.nn.Module):
     def __init__(self, args, enc, dec):
         super(Channel_AE, self).__init__()
-
         use_cuda = not args.no_cuda and torch.cuda.is_available()
         self.this_device = torch.device("cuda" if use_cuda else "cpu")
 
@@ -22,6 +15,7 @@ class Channel_AE(torch.nn.Module):
         self.dec = dec
 
     def forward(self, input, fwd_noise):
+        # Setup Interleavers.
         if self.args.is_interleave == 0:
             pass
 
@@ -38,7 +32,7 @@ class Channel_AE(torch.nn.Module):
             self.enc.set_interleaver(p_array)
             self.dec.set_interleaver(p_array)
 
-        codes          = self.enc(input)
+        codes  = self.enc(input)
 
         if self.args.channel in ['awgn', 't-dist', 'radar', 'ge_awgn']:
             received_codes = codes + fwd_noise
