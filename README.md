@@ -24,6 +24,8 @@ If feel inspired, please consider cite (I will update the link when arxiv versio
       organization={Vancouver}
     }
 
+Support for DeepTurbo (Neural Turbo Code Decoder) is coming soon. The TurboAE decoder RNN version is actually DeepTurbo.
+
 Feel free to ask me any question! yij021@uw.edu
 
 # What is new (10/18/2019): 
