@@ -1,10 +1,9 @@
 # Turbo AE
-Turbo Autoencoder code for paper: Y. Jiang, H. Kim, H. Asnani, S. Kannan, S. Oh, P. Viswanath, "Turbo Autoencoder: Deep learning based channel code for point-to-point communication channels" Conference on Neural Information Processing Systems (NeurIPS), Vancouver, December 2019
+Turbo Autoencoder code for paper: `Y. Jiang, H. Kim, H. Asnani, S. Kannan, S. Oh, P. Viswanath, "Turbo Autoencoder: Deep learning based channel code for point-to-point communication channels" Conference on Neural Information Processing Systems (NeurIPS), Vancouver, December 2019`
 
-Designing channel code via deep learning, inspired by Turbo code, we can achieve comparable performance against near-optimal codes such as LDPC, Polar, and Turbo Code, solely via gradient descent!
+At medium block length, we can achieve comparable performance to near-optimal codes such as LDPC, Polar, and Turbo Code, solely via gradient descent!
 
 **If you use CNN and RNN as encoder and decoder, you can only get:**
-
 
 ![Image of CNN-AE](./docs/cnn_ae.png)
 
