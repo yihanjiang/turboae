@@ -5,6 +5,12 @@ Note: this code is very drafty, and the final version will be out with camera re
 
 Feel free to ask me any question! yij021@uw.edu
 
+# What is new: 
+(1) drafty paper (main.pdf and supplement.pdf) put in repo. Camera-ready paper under construction. Slides under construction.
+(2) Pre-trained model under refining. Current *.pt in './models/' are not best model. (But you can finetune them easily) 
+
+# Basic Usage:
+
 
 # Run experiment:
 
