@@ -1,7 +1,7 @@
 # Turbo AE
 Turbo Autoencoder drafty code for paper: Y. Jiang, H. Kim, H. Asnani, S. Kannan, S. Oh, P. Viswanath, "Turbo Autoencoder: Deep learning based channel code for point-to-point communication channels" Conference on Neural Information Processing Systems (NeurIPS), Vancouver, December 2019
 
-Note: this code is very drafty, and the final version will be out with camera ready paper. Paper camera-ready date is late October.
+Note: this code is very drafty, and the final version will be out with camera ready paper. Paper camera-ready date is late October. Update ongoing.
 
 Feel free to ask me any question! yij021@uw.edu
 
