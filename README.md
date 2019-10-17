@@ -1,7 +1,7 @@
 # Turbo AE
-Turbo Autoencoder code for paper: `Y. Jiang, H. Kim, H. Asnani, S. Kannan, S. Oh, P. Viswanath, "Turbo Autoencoder: Deep learning based channel code for point-to-point communication channels" Conference on Neural Information Processing Systems (NeurIPS), Vancouver, December 2019`
+Turbo Autoencoder code for paper: `Y. Jiang, H. Kim, H. Asnani, S. Kannan, S. Oh, P. Viswanath, "Turbo Autoencoder: Deep learning based channel code for point-to-point communication channels" Conference on Neural Information Processing Systems (NeurIPS), Vancouver, December 2019` 
 
-At medium block length, we can achieve comparable performance to near-optimal codes such as LDPC, Polar, and Turbo Code, solely via gradient descent!
+At medium block length, we can achieve comparable performance to near-optimal codes such as LDPC, Polar, and Turbo Code, solely via gradient descent! 
 
 **If you use CNN and RNN as encoder and decoder, you can only get:**
 
@@ -30,7 +30,8 @@ Feel free to ask me any question! yij021@uw.edu
 
 # What is new (10/18/2019): 
 ## 1. Drafty paper (main.pdf and supplement.pdf) put in  [here](https://github.com/yihanjiang/turboae/blob/master/docs/) 
-Camera-ready paper under construction. Slides under construction.
+Camera-ready paper under construction. 
+Here is the [Slides](https://github.com/yihanjiang/turboae/blob/master/docs/TurboAE_slides.pdf), presented by Dr. Hyeji Kim in Allerton Conference.
 
 ## 2. Pre-trained model under refining. 
 Current *.pt in './models/' are not the best model. (But you can fine-tune them easily) 
