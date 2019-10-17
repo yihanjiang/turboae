@@ -8,24 +8,15 @@ def errors_ber(y_true, y_pred):
     y_pred = y_pred.view(y_pred.shape[0], -1, 1)
 
     myOtherTensor = torch.ne(torch.round(y_true), torch.round(y_pred)).float()
-    k = sum(sum(myOtherTensor))/(myOtherTensor.shape[0]*myOtherTensor.shape[1])
-    return k
+    res = sum(sum(myOtherTensor))/(myOtherTensor.shape[0]*myOtherTensor.shape[1])
+    return res
 
 def errors_ber_list(y_true, y_pred):
-    '''
-    Return each block's BER
-    :param y_true:
-    :param y_pred:
-    :return:
-    '''
     block_len = y_true.shape[1]
     y_true = y_true.view(y_true.shape[0], -1)
     y_pred = y_pred.view(y_pred.shape[0], -1)
 
     myOtherTensor = torch.ne(torch.round(y_true), torch.round(y_pred))
-
-    #myOtherTensor = np.not_equal(np.round(y_true), np.round(y_pred)).float()
-
     res_list_tensor = torch.sum(myOtherTensor, dim = 1).type(torch.FloatTensor)/block_len
 
     return res_list_tensor
@@ -60,7 +51,7 @@ def errors_bler(y_true, y_pred):
     bler_err_rate = sum(np.sum(tp0,axis=1)>0)*1.0/(X_test.shape[0])
     return bler_err_rate
 
-
+# note there are a few definitions of SNR. In our result, we stick to the following SNR setup.
 def snr_db2sigma(train_snr):
     return 10**(-train_snr*1.0/20)
 

@@ -52,12 +52,10 @@ def get_args():
     parser.add_argument('-bsc_p_dec',type=float, default=0.0, help ='only for bsc channel, dec')
 
     # continuous channels training algorithms
-    parser.add_argument('-train_channel_low', type=float, default  = 2.0)
-    parser.add_argument('-train_channel_high', type=float, default = 2.0)
-
+    parser.add_argument('-train_enc_channel_low', type=float, default  = 1.0)
+    parser.add_argument('-train_enc_channel_high', type=float, default = 1.0)
     parser.add_argument('-train_dec_channel_low', type=float, default  = -1.5)
     parser.add_argument('-train_dec_channel_high', type=float, default = 2.0)
-
 
     parser.add_argument('-init_nw_weight', type=str, default='default')
 
@@ -105,13 +103,13 @@ def get_args():
     parser.add_argument('-snr_test_end', type=float, default=4.0)
     parser.add_argument('-snr_points', type=int, default=12)
 
-    parser.add_argument('-batch_size', type=int, default=500)
+    parser.add_argument('-batch_size', type=int, default=100)
     parser.add_argument('-num_epoch', type=int, default=1)
     parser.add_argument('-test_ratio', type=int, default=1,help = 'only for high SNR testing')
     parser.add_argument('-block_len', type=int, default=100)
     parser.add_argument('-img_size', type=int, default=10, help='only used for CNN 2D structures')
 
-    parser.add_argument('-num_block', type=int, default=50000)
+    parser.add_argument('-num_block', type=int, default=100)
 
     parser.add_argument('-test_channel_mode',
                         choices=['block_norm','block_norm_ste'],
