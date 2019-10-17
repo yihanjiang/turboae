@@ -3,12 +3,12 @@ Turbo Autoencoder code for paper: Y. Jiang, H. Kim, H. Asnani, S. Kannan, S. Oh,
 
 Designing channel code via deep learning, inspired by Turbo code, we can achieve comparable performance against near-optimal codes such as LDPC, Polar, and Turbo Code, solely via gradient descent!
 
-## If you use CNN and RNN as encoder and decoder, you can only get:
+**If you use CNN and RNN as encoder and decoder, you can only get:**
 
 
 ![Image of CNN-AE](./docs/cnn_ae.png)
 
-## Use interleaving and iterative decoding, as well as the algorithm shown in more detail in paper, you can have:
+**Use interleaving and iterative decoding, as well as the algorithm shown in more detail in paper, you can have:**
 
 ![Image of TurboAE](./docs/turbo_ae.png)
 
