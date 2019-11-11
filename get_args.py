@@ -28,7 +28,7 @@ def get_args():
                                              'nbcjr_rate3',        # NeuralBCJR Decoder, rate 1/3, allow ft size.
                                              'rate3_cnn'           # CNN Encoder, rate 1/3. No Interleaver
                                             ],
-                        default='TurboAE_rate3_cnn2d')
+                        default='TurboAE_rate3_rnn')
     ################################################################
     # Channel related parameters
     ################################################################
