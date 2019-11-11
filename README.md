@@ -1,6 +1,9 @@
 # Turbo AE
 Turbo Autoencoder code for paper: `Y. Jiang, H. Kim, H. Asnani, S. Kannan, S. Oh, P. Viswanath, "Turbo Autoencoder: Deep learning based channel code for point-to-point communication channels" Conference on Neural Information Processing Systems (NeurIPS), Vancouver, December 2019` 
 
+Also support DeepTurbo for paper: `Y. Jiang, H. Kim, H. Asnani, S. Kannan, S. Oh, P. Viswanath, "Deep Turbo: Deep Turbo Decoder", SPAWC 2019.
+}`
+
 At medium block length, we can achieve comparable performance to near-optimal codes such as LDPC, Polar, and Turbo Code, solely via gradient descent! 
 
 **If you use CNN and RNN as encoder and decoder, you can only get below graph right.**
@@ -22,6 +25,14 @@ If feel inspired, please consider cite (I will update the link when arxiv versio
       pages={},
       year={2019},
       organization={Vancouver}
+    }
+and:
+    @article{Jiang2019DEEPTURBODT,
+      title={DEEPTURBO: Deep Turbo Decoder},
+      author={Yihan Jiang and Hyeji Kim and Himanshu Asnani and Sreeram Kannan and Sewoong Oh and Pramod Viswanath},
+      journal={2019 IEEE 20th International Workshop on Signal Processing Advances in Wireless Communications (SPAWC)},
+      year={2019},
+      pages={1-5}
     }
 
 Support for DeepTurbo (Neural Turbo Code Decoder) is coming soon. The TurboAE decoder RNN version is actually DeepTurbo.
