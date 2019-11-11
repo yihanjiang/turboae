@@ -49,7 +49,7 @@ Current *.pt in './models/' are not the best model. (But you can fine-tune them 
 ## 3. A document for guiding replicate results from scratch is [here](https://github.com/yihanjiang/turboae/blob/master/docs/howtos.md)
 
 
-# Run experiment examples:
+# Run experiment for Turbo AE:
 
 (1) Test pre-trained model, just enforce `-num_epoch 0`:
 
@@ -69,3 +69,17 @@ Current *.pt in './models/' are not the best model. (But you can fine-tune them 
     CUDA_VISIBLE_DEVICES=0 python3.6 main.py -encoder TurboAE_rate3_cnn -decoder TurboAE_rate3_cnn -enc_num_unit 100 -enc_num_layer 2 -dec_num_unit 100 -dec_num_layer 5 -num_iter_ft 5 -channel awgn -num_train_dec 5 -num_train_enc 1 -code_rate_k 1 -code_rate_n 3 -train_enc_channel_low 2.0 -train_enc_channel_high 2.0  -snr_test_start -1.5 -snr_test_end 4.0 -snr_points 12 -num_iteration 6 -is_parallel 1 -train_dec_channel_low -1.5 -train_dec_channel_high 2.0 -is_same_interleaver 1 -dec_lr 0.0001 -enc_lr 0.0001 -num_block 50000 -batch_size 500 -train_channel_mode block_norm_ste -test_channel_mode block_norm_ste -num_epoch 100 --print_test_traj -loss bce -init_nw_weight ./models/dta_step2_cnn2_cnn5_enctrain2_dectrainneg15_2.pt
 
 Note that `block_norm_ste` will enforce this.
+
+# Run experiment for DeepTurbo
+
+(1) Train DeepTurbo with DeepTurbo-RNN:
+
+    CUDA_VISIBLE_DEVICES=0 python3.6 main.py -encoder Turbo_rate3_757 -decoder TurboAE_rate3_rnn -dec_num_unit 100 -dec_num_layer 5 -num_iter_ft 5 -channel awgn -num_train_dec 5 -code_rate_k 1 -code_rate_n 3   -snr_test_start -1.5 -snr_test_end 4.0 -snr_points 12 -num_iteration 6 -is_parallel 1 -train_dec_channel_low -1.5 -train_dec_channel_high 2.0  -is_same_interleaver 1 -dec_lr 0.0001 -num_block 10000 -batch_size 100 -block_len 100 -num_epoch 200 --print_test_traj
+
+(2) Train DeepTurbo with DeepTurbo-CNN:
+ 
+    CUDA_VISIBLE_DEVICES=0 python3.6 main.py -encoder Turbo_rate3_757 -decoder TurboAE_rate3_cnn -dec_num_unit 100 -dec_num_layer 5 -num_iter_ft 5 -channel awgn -num_train_dec 5 -code_rate_k 1 -code_rate_n 3   -snr_test_start -1.5 -snr_test_end 4.0 -snr_points 12 -num_iteration 6 -is_parallel 1 -train_dec_channel_low -1.5 -train_dec_channel_high 2.0  -is_same_interleaver 1 -dec_lr 0.0001 -num_block 10000 -batch_size 100 -block_len 100 -num_epoch 200 --print_test_traj
+
+You probably need to fine-tune on this model, e.g.increase the batch size, reduce the learning rate, and so on. 
+As original DeepTurbo is not conducted under this framework, I am not sure if this will replicate what paper shows easily.
+I am `actively` working on this.

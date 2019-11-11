@@ -13,11 +13,11 @@ def get_args():
                                              'TurboAE_rate3_cnn2d',    # TurboAE Encoder, rate 1/3, Same Shape 2D CNN encoded.
                                              'TurboAE_rate2_rnn',      # TurboAE Encoder, rate 1/2, RNN
                                              'TurboAE_rate2_cnn',      # TurboAE Encoder, rate 1/2, Same Shape 1D CNN encoded.(TBD)
-                                             'rate3_cnn'               # CNN Encoder, rate 1/3. No Interleaver
+                                             'rate3_cnn',              # CNN Encoder, rate 1/3. No Interleaver
                                              'Turbo_rate3_757',        # Turbo Code, rate 1/3, 757.
                                              'Turbo_rate3_lte',        # Turbo Code, rate 1/3, LTE.
                                             ],
-                        default='Turbo_rate3_757')
+                        default='TurboAE_rate3_cnn')
 
     parser.add_argument('-decoder', choices=['TurboAE_rate3_rnn',      # TurboAE Decoder, rate 1/3
                                              'TurboAE_rate3_cnn',      # TurboAE Decoder, rate 1/3, Same Shape 1D CNN Decoder
@@ -28,7 +28,7 @@ def get_args():
                                              'nbcjr_rate3',        # NeuralBCJR Decoder, rate 1/3, allow ft size.
                                              'rate3_cnn'           # CNN Encoder, rate 1/3. No Interleaver
                                             ],
-                        default='TurboAE_rate3_rnn')
+                        default='TurboAE_rate3_cnn')
     ################################################################
     # Channel related parameters
     ################################################################
