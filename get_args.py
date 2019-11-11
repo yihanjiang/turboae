@@ -14,8 +14,10 @@ def get_args():
                                              'TurboAE_rate2_rnn',      # TurboAE Encoder, rate 1/2, RNN
                                              'TurboAE_rate2_cnn',      # TurboAE Encoder, rate 1/2, Same Shape 1D CNN encoded.(TBD)
                                              'rate3_cnn'               # CNN Encoder, rate 1/3. No Interleaver
+                                             'Turbo_rate3_757',        # Turbo Code, rate 1/3, 757.
+                                             'Turbo_rate3_lte',        # Turbo Code, rate 1/3, LTE.
                                             ],
-                        default='TurboAE_rate3_cnn2d')
+                        default='Turbo_rate3_757')
 
     parser.add_argument('-decoder', choices=['TurboAE_rate3_rnn',      # TurboAE Decoder, rate 1/3
                                              'TurboAE_rate3_cnn',      # TurboAE Decoder, rate 1/3, Same Shape 1D CNN Decoder

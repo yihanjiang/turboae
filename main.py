@@ -53,6 +53,9 @@ def import_enc(args):
     elif args.encoder == 'TurboAE_rate2_cnn':
         from encoders import ENC_turbofy_rate2_CNN as ENC  # not done yet
 
+    elif args.encoder in ['Turbo_rate3_lte', 'Turbo_rate3_757']:
+        from encoders import ENC_TurboCode as ENC          # DeepTurbo, encoder not trainable.
+
     else:
         print('Unknown Encoder, stop')
 
@@ -159,7 +162,7 @@ if __name__ == '__main__':
     #################################################
     # Setup Optimizers, only Adam works for now.
     #################################################
-    if args.num_train_enc != 0:
+    if args.num_train_enc != 0 and args.encoder not in ['Turbo_rate3_lte', 'Turbo_rate3_757']: # no optimizer for encoder
         enc_optimizer = optim.Adam(model.enc.parameters(),lr=args.enc_lr)
 
     if args.num_train_dec != 0:
@@ -174,12 +177,12 @@ if __name__ == '__main__':
 
     for epoch in range(1, args.num_epoch + 1):
 
-        if args.joint_train == 1:
+        if args.joint_train == 1 and args.encoder not in ['Turbo_rate3_lte', 'Turbo_rate3_757']:
             for idx in range(args.num_train_enc+args.num_train_dec):
                 train(epoch, model, general_optimizer, args, use_cuda = use_cuda, mode ='encoder')
 
         else:
-            if args.num_train_enc > 0:
+            if args.num_train_enc > 0 and args.encoder not in ['Turbo_rate3_lte', 'Turbo_rate3_757']:
                 for idx in range(args.num_train_enc):
                     train(epoch, model, enc_optimizer, args, use_cuda = use_cuda, mode ='encoder')
 
