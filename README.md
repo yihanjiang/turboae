@@ -41,7 +41,8 @@ Feel free to ask me any question! yij021@uw.edu
 # What is new (11/11/2019): 
 ## 1. Camera ready paper is on [Arxiv](https://arxiv.org/abs/1911.03038)
 Here is the [Slides](https://github.com/yihanjiang/turboae/blob/master/docs/TurboAE_slides.pdf), presented by Dr. Hyeji Kim in Allerton Conference.
-I am working on the poster, and will be out shortly.
+I am working on the poster, and the poster will be out shortly. The plot result .py files will be out soon.
+
 
 ## 2. Code Support for [DeepTurbo](https://arxiv.org/abs/1903.02295) is out.
 Ongoing progress to replicate DeepTurbo result on TurboAE framework.
