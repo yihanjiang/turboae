@@ -133,7 +133,7 @@ def get_args():
     ################################################################
     # Optimizer related parameters
     ################################################################
-    parser.add_argument('-optimizer', choices=['adam'], default='adam', help = 'Only Adam works well.')
+    parser.add_argument('-optimizer', choices=['adam', 'lookahead'], default='lookahead', help = 'Only Adam works well.')
     parser.add_argument('-dec_lr', type = float, default=0.001, help='decoder leanring rate')
     parser.add_argument('-enc_lr', type = float, default=0.001, help='encoder leanring rate')
     parser.add_argument('-momentum', type = float, default=0.9)
