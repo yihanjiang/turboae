@@ -179,14 +179,21 @@ if __name__ == '__main__':
         general_base_opt = optim.Adam(filter(lambda p: p.requires_grad, model.parameters()),lr=args.dec_lr)
         general_optimizer = Lookahead(general_base_opt, k=lookahead_k, alpha=lookahead_alpha)
 
-    else: # Adam
+    else: # Adam, SGD, etc....
+        if args.optimizer == 'adam':
+            OPT = optim.Adam
+        elif args.optimizer == 'sgd':
+            OPT = optim.SGD
+        else:
+            OPT = optim.Adam
+
         if args.num_train_enc != 0 and args.encoder not in ['Turbo_rate3_lte', 'Turbo_rate3_757']: # no optimizer for encoder
-            enc_optimizer = optim.Adam(model.enc.parameters(),lr=args.enc_lr)
+            enc_optimizer = OPT(model.enc.parameters(),lr=args.enc_lr)
 
         if args.num_train_dec != 0:
-            dec_optimizer = optim.Adam(filter(lambda p: p.requires_grad, model.dec.parameters()), lr=args.dec_lr)
+            dec_optimizer = OPT(filter(lambda p: p.requires_grad, model.dec.parameters()), lr=args.dec_lr)
 
-        general_optimizer = optim.Adam(filter(lambda p: p.requires_grad, model.parameters()),lr=args.dec_lr)
+        general_optimizer = OPT(filter(lambda p: p.requires_grad, model.parameters()),lr=args.dec_lr)
 
     #################################################
     # Training Processes

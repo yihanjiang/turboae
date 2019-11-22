@@ -16,7 +16,7 @@ from channels import generate_noise
 ######################################################################################
 
 # trainer
-def train(epoch, model, optimizer, args, use_cuda = False, verbose = True, mode = 'encoder'):
+def train(epoch, model, optimizer, args, use_cuda = False, verbose = True, mode = 'encoder', random_index = -1):
 
     device = torch.device("cuda" if use_cuda else "cpu")
 
@@ -24,9 +24,16 @@ def train(epoch, model, optimizer, args, use_cuda = False, verbose = True, mode 
     start_time = time.time()
     train_loss = 0.0
 
+    if random_index == -1:
+        torch.initial_seed()
+    else:
+        torch.manual_seed(random_index)
+
     for batch_idx in range(int(args.num_block/args.batch_size)):
         optimizer.zero_grad()
         X_train    = torch.randint(0, 2, (args.batch_size, args.block_len, args.code_rate_k), dtype=torch.float)
+        print(X_train[0, :, 0])
+
 
         # train encoder/decoder with different SNR... seems to be a good practice.
         if mode == 'encoder':

@@ -174,6 +174,7 @@ class ENC_turbofy_rate2(ENCBase):
 
         codes = self.power_constraint(x_tx)
         return codes
+
 ######################################################
 # Systematic Bit, with rate 1/3, TurboAE RNN Encocder
 ######################################################
@@ -228,7 +229,6 @@ class ENC_interRNN_sys(ENCBase):
         codes      = torch.cat([x_sys, x_tx], dim=2)
 
         return codes
-
 
 #######################################################
 # TurboAE Encocder, with rate 1/3, RNN only
@@ -301,7 +301,6 @@ class ENC_interRNN(ENCBase):
 
         codes = self.power_constraint(x_tx)
         return codes
-
 
 #######################################################
 # TurboAE Encocder, with rate 1/3, CNN-1D same shape only

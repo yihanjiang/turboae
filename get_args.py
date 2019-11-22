@@ -127,17 +127,16 @@ def get_args():
     parser.add_argument('-enc_quantize_level', type=float, default=2, help = 'only valid for block_norm_ste')
     parser.add_argument('-enc_value_limit', type=float, default=1.0, help = 'only valid for block_norm_ste')
     parser.add_argument('-enc_grad_limit', type=float, default=0.01, help = 'only valid for block_norm_ste')
-    parser.add_argument('-enc_clipping', choices=['inputs', 'gradient', 'both', 'default'], default='both',
+    parser.add_argument('-enc_clipping', choices=['inputs', 'gradient', 'both', 'none'], default='both',
                         help = 'only valid for ste')
 
     ################################################################
     # Optimizer related parameters
     ################################################################
-    parser.add_argument('-optimizer', choices=['adam', 'lookahead'], default='adam', help = '....:)')
+    parser.add_argument('-optimizer', choices=['adam', 'lookahead', 'sgd'], default='adam', help = '....:)')
     parser.add_argument('-dec_lr', type = float, default=0.001, help='decoder leanring rate')
     parser.add_argument('-enc_lr', type = float, default=0.001, help='encoder leanring rate')
     parser.add_argument('-momentum', type = float, default=0.9)
-    parser.add_argument('-clip_norm', type = float, default=1.0)
 
     ################################################################
     # Loss related parameters

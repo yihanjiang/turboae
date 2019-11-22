@@ -6,9 +6,7 @@ import warnings
 
 ############################################################################
 # Lookahead optimizers
-#
 ############################################################################
-
 class Lookahead(Optimizer):
     def __init__(self, optimizer, k=5, alpha=0.5):
         self.optimizer = optimizer
@@ -74,3 +72,8 @@ class Lookahead(Optimizer):
     def add_param_group(self, param_group):
         param_group["counter"] = 0
         self.optimizer.add_param_group(param_group)
+
+
+
+
+
