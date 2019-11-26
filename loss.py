@@ -39,6 +39,11 @@ def customized_loss(output, X_train, args, size_average = True, noise = None, co
     ##########################################################################################
     # The result are all experimental, nothing works..... BCE works well.
     ##########################################################################################
+    elif args.loss == 'soft_ber':
+        output = torch.clamp(output, 0.0, 1.0)
+        loss = torch.mean(((1.0 - output)**X_train )* ((output) ** (1.0-X_train)))
+        #print(loss)
+
     elif args.loss == 'bce_rl':
         output = torch.clamp(output, 0.0, 1.0)
 
@@ -51,14 +56,14 @@ def customized_loss(output, X_train, args, size_average = True, noise = None, co
 
         loss = args.ber_lambda * torch.mean(ber_loss*bce_loss) + args.bce_lambda * bce_loss.mean()
 
-    elif args.loss == 'enc_rl':
-        output = torch.clamp(output, 0.0, 1.0)
+    elif args.loss == 'enc_rl':  # binary info about if decoding is wrong or not.
+        output = torch.clamp(output, 0.0, 1.0).detach()
+        ber_loss      = torch.ne(torch.round(output), torch.round(X_train)).float().detach()
 
-        # support different sparcoty of feedback noise.... for future....
-        ber_loss      = torch.ne(torch.round(output), torch.round(X_train)).float()
-        #baseline      = torch.mean(ber_loss)
-        #ber_loss      = ber_loss - baseline
-        loss = args.ber_lambda  * torch.mean(ber_loss*torch.abs(code))
+        # baseline      = torch.mean(ber_loss)
+        # ber_loss      = ber_loss - baseline
+        item = ber_loss*torch.abs(code)
+        loss          = torch.mean(ber_loss*torch.abs(code))
 
     elif args.loss == 'bce_block':
         output = torch.clamp(output, 0.0, 1.0)

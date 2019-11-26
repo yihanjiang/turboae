@@ -4,6 +4,9 @@ import torch.nn.functional as F
 import commpy.channelcoding.interleavers as RandInterlv
 import numpy as np
 
+from ste import STEQuantize as MyQuantize
+
+
 class Channel_AE(torch.nn.Module):
     def __init__(self, args, enc, dec):
         super(Channel_AE, self).__init__()
@@ -34,6 +37,7 @@ class Channel_AE(torch.nn.Module):
 
         codes  = self.enc(input)
 
+        # Setup channel mode:
         if self.args.channel in ['awgn', 't-dist', 'radar', 'ge_awgn']:
             received_codes = codes + fwd_noise
 
@@ -59,6 +63,10 @@ class Channel_AE(torch.nn.Module):
         else:
             print('default AWGN channel')
             received_codes = codes + fwd_noise
+
+        if self.args.rec_quantize:
+            myquantize = MyQuantize.apply
+            received_codes = myquantize(received_codes, self.args.rec_quantize_level, self.args.rec_quantize_level)
 
         x_dec          = self.dec(received_codes)
 

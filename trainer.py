@@ -15,25 +15,32 @@ from channels import generate_noise
 #
 ######################################################################################
 
-# trainer
-def train(epoch, model, optimizer, args, use_cuda = False, verbose = True, mode = 'encoder', random_index = -1):
+
+def train(epoch, model, optimizer, args, use_cuda = False, verbose = True, mode = 'encoder'):
 
     device = torch.device("cuda" if use_cuda else "cpu")
 
     model.train()
     start_time = time.time()
     train_loss = 0.0
+    k_same_code_counter = 0
 
-    if random_index == -1:
-        torch.initial_seed()
-    else:
-        torch.manual_seed(random_index)
 
     for batch_idx in range(int(args.num_block/args.batch_size)):
-        optimizer.zero_grad()
-        X_train    = torch.randint(0, 2, (args.batch_size, args.block_len, args.code_rate_k), dtype=torch.float)
-        print(X_train[0, :, 0])
 
+        optimizer.zero_grad()
+
+        if args.is_k_same_code and mode == 'encoder':
+            if batch_idx == 0:
+                k_same_code_counter += 1
+                X_train    = torch.randint(0, 2, (args.batch_size, args.block_len, args.code_rate_k), dtype=torch.float)
+            elif k_same_code_counter == args.k_same_code:
+                k_same_code_counter = 1
+                X_train    = torch.randint(0, 2, (args.batch_size, args.block_len, args.code_rate_k), dtype=torch.float)
+            else:
+                k_same_code_counter += 1
+        else:
+            X_train    = torch.randint(0, 2, (args.batch_size, args.block_len, args.code_rate_k), dtype=torch.float)
 
         # train encoder/decoder with different SNR... seems to be a good practice.
         if mode == 'encoder':
@@ -48,8 +55,10 @@ def train(epoch, model, optimizer, args, use_cuda = False, verbose = True, mode 
 
         if mode == 'encoder':
             loss = customized_loss(output, X_train, args, noise=fwd_noise, code = code)
+
         else:
-            loss = F.binary_cross_entropy(output, X_train)
+            loss = customized_loss(output, X_train, args, noise=fwd_noise, code = code)
+            #loss = F.binary_cross_entropy(output, X_train)
 
         loss.backward()
         train_loss += loss.item()
@@ -62,6 +71,8 @@ def train(epoch, model, optimizer, args, use_cuda = False, verbose = True, mode 
             ' running time', str(end_time - start_time))
 
     return train_loss
+
+
 
 def validate(model, optimizer, args, use_cuda = False, verbose = True):
 
