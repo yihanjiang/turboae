@@ -13,15 +13,14 @@ At medium block length, we can achieve comparable performance to near-optimal co
 
 Required library: test on Python 3.6.11+ PyTorch 1.0.
 
-If feel inspired, please consider cite (I will update the link when arxiv version is out.):
+If feel inspired, please consider cite:
 
-    @inproceedings{jiang2019turboae,
-      title={Turbo Autoencoder: Deep learning based channel code for point-to-point communication channels},
+    @inproceedings{jiang2019turbo,
+      title={Turbo Autoencoder: Deep learning based channel codes for point-to-point communication channels},
       author={Jiang, Yihan and Kim, Hyeji and Asnani, Himanshu and Kannan, Sreeram and Oh, Sewoong and Viswanath, Pramod},
-      booktitle={NeurIPS 2019},
-      pages={},
-      year={2019},
-      organization={Vancouver}
+      booktitle={Advances in Neural Information Processing Systems},
+      pages={2754--2764},
+      year={2019}
     }
 
 Also support DeepTurbo for paper: `Y. Jiang, H. Kim, H. Asnani, S. Kannan, S. Oh, P. Viswanath, "Deep Turbo: Deep Turbo Decoder", SPAWC 2019`, Support for DeepTurbo (Neural Turbo Code Decoder) is out. The TurboAE decoder RNN version is actually DeepTurbo.
