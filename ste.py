@@ -26,9 +26,13 @@ class STEQuantize(torch.autograd.Function):
         input, = ctx.saved_tensors
 
         # let's see what happens....
-        grad_output[torch.abs(input)>1.5]=0
-        grad_output[torch.abs(input)<0.5]=0
-        grad_output = torch.clamp(grad_output, -0.5, +0.5)
+        # grad_output[torch.abs(input)>1.5]=0
+        # grad_output[torch.abs(input)<0.5]=0
+
+        grad_output[input>1.0]=0
+        grad_output[input<-1.0]=0
+
+        grad_output = torch.clamp(grad_output, -0.25, +0.25)
 
         grad_input = grad_output.clone()
 

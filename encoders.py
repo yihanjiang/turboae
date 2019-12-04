@@ -306,6 +306,8 @@ class ENC_interRNN(ENCBase):
 # TurboAE Encocder, with rate 1/3, CNN-1D same shape only
 #######################################################
 from cnn_utils import SameShapeConv1d
+from cnn_utils import DenseSameShapeConv1d
+
 class ENC_interCNN(ENCBase):
     def __init__(self, args, p_array):
         # turbofy only for code rate 1/3
@@ -313,21 +315,28 @@ class ENC_interCNN(ENCBase):
         self.args             = args
 
         # Encoder
+        if self.args.encoder == 'TurboAE_rate3_cnn':
+            self.enc_cnn_1       = SameShapeConv1d(num_layer=args.enc_num_layer, in_channels=args.code_rate_k,
+                                                      out_channels= args.enc_num_unit, kernel_size = args.enc_kernel_size)
 
-        self.enc_cnn_1       = SameShapeConv1d(num_layer=args.enc_num_layer, in_channels=args.code_rate_k,
-                                                  out_channels= args.enc_num_unit, kernel_size = args.enc_kernel_size)
+            self.enc_cnn_2       = SameShapeConv1d(num_layer=args.enc_num_layer, in_channels=args.code_rate_k,
+                                                      out_channels= args.enc_num_unit, kernel_size = args.enc_kernel_size)
+
+            self.enc_cnn_3       = SameShapeConv1d(num_layer=args.enc_num_layer, in_channels=args.code_rate_k,
+                                                      out_channels= args.enc_num_unit, kernel_size = args.enc_kernel_size)
+        else: # Dense
+            self.enc_cnn_1       = DenseSameShapeConv1d(num_layer=args.enc_num_layer, in_channels=args.code_rate_k,
+                                                      out_channels= args.enc_num_unit, kernel_size = args.enc_kernel_size)
+
+            self.enc_cnn_2       = DenseSameShapeConv1d(num_layer=args.enc_num_layer, in_channels=args.code_rate_k,
+                                                      out_channels= args.enc_num_unit, kernel_size = args.enc_kernel_size)
+
+            self.enc_cnn_3       = DenseSameShapeConv1d(num_layer=args.enc_num_layer, in_channels=args.code_rate_k,
+                                                      out_channels= args.enc_num_unit, kernel_size = args.enc_kernel_size)
 
 
         self.enc_linear_1    = torch.nn.Linear(args.enc_num_unit, 1)
-
-        self.enc_cnn_2       = SameShapeConv1d(num_layer=args.enc_num_layer, in_channels=args.code_rate_k,
-                                                  out_channels= args.enc_num_unit, kernel_size = args.enc_kernel_size)
-
         self.enc_linear_2    = torch.nn.Linear(args.enc_num_unit, 1)
-
-        self.enc_cnn_3       = SameShapeConv1d(num_layer=args.enc_num_layer, in_channels=args.code_rate_k,
-                                                  out_channels= args.enc_num_unit, kernel_size = args.enc_kernel_size)
-
         self.enc_linear_3    = torch.nn.Linear(args.enc_num_unit, 1)
 
         self.interleaver      = Interleaver(args, p_array)

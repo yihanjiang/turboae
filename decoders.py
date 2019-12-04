@@ -151,7 +151,7 @@ class DEC_LargeRNN(torch.nn.Module):
 # 1D CNN same shape decoder
 ##################################################
 
-from encoders import SameShapeConv1d
+from encoders import SameShapeConv1d, DenseSameShapeConv1d
 class DEC_LargeCNN(torch.nn.Module):
     def __init__(self, args, p_array):
         super(DEC_LargeCNN, self).__init__()
@@ -168,12 +168,18 @@ class DEC_LargeCNN(torch.nn.Module):
         self.dec1_outputs   = torch.nn.ModuleList()
         self.dec2_outputs   = torch.nn.ModuleList()
 
+        if self.args.encoder == 'TurboAE_rate3_cnn':
+            CNNLayer = SameShapeConv1d
+        else:
+            CNNLayer = DenseSameShapeConv1d
+
+
         for idx in range(args.num_iteration):
-            self.dec1_cnns.append(SameShapeConv1d(num_layer=args.dec_num_layer, in_channels=2 + args.num_iter_ft,
+            self.dec1_cnns.append(CNNLayer(num_layer=args.dec_num_layer, in_channels=2 + args.num_iter_ft,
                                                   out_channels= args.dec_num_unit, kernel_size = args.dec_kernel_size)
             )
 
-            self.dec2_cnns.append(SameShapeConv1d(num_layer=args.dec_num_layer, in_channels=2 + args.num_iter_ft,
+            self.dec2_cnns.append(CNNLayer(num_layer=args.dec_num_layer, in_channels=2 + args.num_iter_ft,
                                                   out_channels= args.dec_num_unit, kernel_size = args.dec_kernel_size)
             )
             self.dec1_outputs.append(torch.nn.Linear(args.dec_num_unit, args.num_iter_ft))

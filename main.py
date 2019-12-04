@@ -32,7 +32,7 @@ def import_enc(args):
     if args.encoder == 'TurboAE_rate3_rnn':
         from encoders import ENC_interRNN as ENC
 
-    elif args.encoder == 'TurboAE_rate3_cnn':
+    elif args.encoder in ['TurboAE_rate3_cnn', 'TurboAE_rate3_cnn_dense']:
         from encoders import ENC_interCNN as ENC
 
     elif args.encoder == 'TurboAE_rate3_cnn_2inter':
@@ -69,7 +69,7 @@ def import_dec(args):
     elif args.decoder == 'TurboAE_rate2_cnn':
         from decoders import DEC_LargeCNN_rate2 as DEC  # not done yet
 
-    elif args.decoder == 'TurboAE_rate3_cnn':
+    elif args.decoder in ['TurboAE_rate3_cnn', 'TurboAE_rate3_cnn_dense']:
         from decoders import DEC_LargeCNN as DEC
 
     elif args.decoder == 'TurboAE_rate3_cnn_2inter':
