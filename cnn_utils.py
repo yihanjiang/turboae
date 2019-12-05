@@ -102,3 +102,39 @@ class SameShapeConv2d(torch.nn.Module):
         return x
 
 
+
+
+class DenseSameShapeConv2d(torch.nn.Module):
+    def __init__(self, num_layer, in_channels, out_channels, kernel_size,  no_act = False):
+        super(DenseSameShapeConv2d, self).__init__()
+        self.no_act = no_act
+        self.cnns = torch.nn.ModuleList()
+        self.num_layer = num_layer
+        for idx in range(num_layer):
+            if idx == 0:
+                self.cnns.append(torch.nn.Conv2d(in_channels = in_channels, out_channels=out_channels,
+                                                      kernel_size=kernel_size, stride=1, padding=(kernel_size // 2),
+                                                      dilation=1, groups=1, bias=True)
+                )
+            else:
+                self.cnns.append(torch.nn.Conv2d(in_channels = in_channels + idx * out_channels, out_channels=out_channels,
+                                                      kernel_size=kernel_size, stride=1, padding=(kernel_size // 2),
+                                                      dilation=1, groups=1, bias=True)
+                )
+
+    def forward(self, inputs):
+
+        x = inputs
+        for idx in range(self.num_layer):
+            if idx == 0:
+                this_input = inputs
+            else:
+                this_input = torch.cat([this_input, output], dim=1)
+
+            if self.no_act:
+                output = self.cnns[idx](this_input)
+            else:
+                output = F.elu(self.cnns[idx](this_input))
+
+        return x
+

@@ -377,7 +377,7 @@ class DEC_LargeCNN2Int(torch.nn.Module):
 
 
 # experimental cnn 2d
-from encoders import SameShapeConv2d
+from encoders import SameShapeConv2d, DenseSameShapeConv2d
 from interleavers import DeInterleaver2D, Interleaver2D
 class DEC_LargeCNN2D(torch.nn.Module):
     def __init__(self, args, p_array):
@@ -386,6 +386,11 @@ class DEC_LargeCNN2D(torch.nn.Module):
 
         use_cuda = not args.no_cuda and torch.cuda.is_available()
         self.this_device = torch.device("cuda" if use_cuda else "cpu")
+
+        if self.args.encoder == 'TurboAE_rate3_cnn2d_dense':
+            CNN2d = DenseSameShapeConv2d
+        else:
+            CNN2d = SameShapeConv2d
 
         self.interleaver          = Interleaver2D(args, p_array)
         self.deinterleaver        = DeInterleaver2D(args, p_array)
@@ -396,19 +401,19 @@ class DEC_LargeCNN2D(torch.nn.Module):
         self.dec2_outputs   = torch.nn.ModuleList()
 
         for idx in range(args.num_iteration):
-            self.dec1_cnns.append(SameShapeConv2d(num_layer=args.dec_num_layer, in_channels=2 + args.num_iter_ft,
+            self.dec1_cnns.append(CNN2d(num_layer=args.dec_num_layer, in_channels=2 + args.num_iter_ft,
                                                   out_channels= args.dec_num_unit, kernel_size = args.dec_kernel_size)
             )
 
-            self.dec2_cnns.append(SameShapeConv2d(num_layer=args.dec_num_layer, in_channels=2 + args.num_iter_ft,
+            self.dec2_cnns.append(CNN2d(num_layer=args.dec_num_layer, in_channels=2 + args.num_iter_ft,
                                                   out_channels= args.dec_num_unit, kernel_size = args.dec_kernel_size)
             )
-            self.dec1_outputs.append(SameShapeConv2d(1, args.dec_num_unit, args.num_iter_ft , kernel_size=1))
+            self.dec1_outputs.append(CNN2d(1, args.dec_num_unit, args.num_iter_ft , kernel_size=1))
 
             if idx == args.num_iteration -1:
-                self.dec2_outputs.append(SameShapeConv2d(1, args.dec_num_unit,1 , kernel_size=1, no_act = True))
+                self.dec2_outputs.append(CNN2d(1, args.dec_num_unit,1 , kernel_size=1, no_act = True))
             else:
-                self.dec2_outputs.append(SameShapeConv2d(1, args.dec_num_unit,args.num_iter_ft , kernel_size=1))
+                self.dec2_outputs.append(CNN2d(1, args.dec_num_unit,args.num_iter_ft , kernel_size=1))
 
 
     def set_parallel(self):

@@ -41,7 +41,7 @@ def import_enc(args):
     elif args.encoder == 'rate3_cnn':
         from encoders import CNN_encoder_rate3 as ENC
 
-    elif args.encoder == 'TurboAE_rate3_cnn2d':
+    elif args.encoder in ['TurboAE_rate3_cnn2d', 'TurboAE_rate3_cnn2d_dense']:
         from encoders import ENC_interCNN2D as ENC
 
     elif args.encoder == 'TurboAE_rate3_rnn_sys':
@@ -78,7 +78,7 @@ def import_dec(args):
     elif args.encoder == 'rate3_cnn':
         from decoders import CNN_decoder_rate3 as DEC
 
-    elif args.decoder == 'TurboAE_rate3_cnn2d':
+    elif args.decoder in ['TurboAE_rate3_cnn2d', 'TurboAE_rate3_cnn2d_dense']:
         from decoders import DEC_LargeCNN2D as DEC
 
     elif args.decoder == 'TurboAE_rate3_rnn':

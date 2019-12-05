@@ -503,8 +503,9 @@ class ENC_turbofy_rate2_CNN(ENCBase):
 #######################################################
 # TurboAE Encocder, with rate 1/3, CNN-2D.
 #######################################################
-from cnn_utils import SameShapeConv2d
+from cnn_utils import SameShapeConv2d, DenseSameShapeConv2d
 from interleavers import  Interleaver2D
+
 class ENC_interCNN2D(ENCBase):
     def __init__(self, args, p_array):
         # turbofy only for code rate 1/3
@@ -512,18 +513,22 @@ class ENC_interCNN2D(ENCBase):
         self.args             = args
 
         # Encoder
+        if self.args.encoder == 'TurboAE_rate3_cnn2d_dense':
+            CNN2d = DenseSameShapeConv2d
+        else:
+            CNN2d = SameShapeConv2d
 
-        self.enc_cnn_1       = SameShapeConv2d(num_layer=args.enc_num_layer, in_channels=args.code_rate_k,
+        self.enc_cnn_1       = CNN2d(num_layer=args.enc_num_layer, in_channels=args.code_rate_k,
                                                   out_channels= args.enc_num_unit, kernel_size = args.enc_kernel_size)
 
         self.enc_linear_1    =  torch.nn.Conv2d(args.enc_num_unit, 1, 1, 1, 0, bias=True)
 
-        self.enc_cnn_2       = SameShapeConv2d(num_layer=args.enc_num_layer, in_channels=args.code_rate_k,
+        self.enc_cnn_2       = CNN2d(num_layer=args.enc_num_layer, in_channels=args.code_rate_k,
                                                   out_channels= args.enc_num_unit, kernel_size = args.enc_kernel_size)
 
         self.enc_linear_2    = torch.nn.Conv2d(args.enc_num_unit, 1, 1, 1, 0, bias=True)
 
-        self.enc_cnn_3       = SameShapeConv2d(num_layer=args.enc_num_layer, in_channels=args.code_rate_k,
+        self.enc_cnn_3       = CNN2d(num_layer=args.enc_num_layer, in_channels=args.code_rate_k,
                                                   out_channels= args.enc_num_unit, kernel_size = args.enc_kernel_size)
 
         self.enc_linear_3    = torch.nn.Conv2d(args.enc_num_unit, 1, 1, 1, 0, bias=True)
