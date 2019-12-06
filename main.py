@@ -56,6 +56,9 @@ def import_enc(args):
     elif args.encoder in ['Turbo_rate3_lte', 'Turbo_rate3_757']:
         from encoders import ENC_TurboCode as ENC          # DeepTurbo, encoder not trainable.
 
+    elif args.encoder == 'rate3_cnn2d':
+        from encoders import ENC_CNN2D as ENC
+
     else:
         print('Unknown Encoder, stop')
 
@@ -86,6 +89,9 @@ def import_dec(args):
 
     elif args.decoder == 'nbcjr_rate3':                # ICLR 2018 paper
         from decoders import NeuralTurbofyDec as DEC
+
+    elif args.decoder == 'rate3_cnn2d':
+        from decoders import DEC_CNN2D as DEC
 
     return DEC
 

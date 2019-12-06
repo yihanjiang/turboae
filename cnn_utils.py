@@ -136,5 +136,5 @@ class DenseSameShapeConv2d(torch.nn.Module):
             else:
                 output = F.elu(self.cnns[idx](this_input))
 
-        return x
+        return output
 

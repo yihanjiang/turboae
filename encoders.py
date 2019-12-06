@@ -572,6 +572,75 @@ class ENC_interCNN2D(ENCBase):
         return codes
 
 
+
+
+#######################################################
+# RNN Encocder, with rate 1/3, CNN-2D.
+#######################################################
+
+class ENC_CNN2D(ENCBase):
+    def __init__(self, args, p_array):
+        # turbofy only for code rate 1/3
+        super(ENC_CNN2D, self).__init__(args)
+        self.args             = args
+
+        # Encoder
+        if self.args.encoder == 'TurboAE_rate3_cnn2d_dense':
+            CNN2d = DenseSameShapeConv2d
+        else:
+            CNN2d = SameShapeConv2d
+
+        self.enc_cnn_1       = CNN2d(num_layer=args.enc_num_layer, in_channels=args.code_rate_k,
+                                                  out_channels= args.enc_num_unit, kernel_size = args.enc_kernel_size)
+
+        self.enc_linear_1    =  torch.nn.Conv2d(args.enc_num_unit, 1, 1, 1, 0, bias=True)
+
+        self.enc_cnn_2       = CNN2d(num_layer=args.enc_num_layer, in_channels=args.code_rate_k,
+                                                  out_channels= args.enc_num_unit, kernel_size = args.enc_kernel_size)
+
+        self.enc_linear_2    = torch.nn.Conv2d(args.enc_num_unit, 1, 1, 1, 0, bias=True)
+
+        self.enc_cnn_3       = CNN2d(num_layer=args.enc_num_layer, in_channels=args.code_rate_k,
+                                                  out_channels= args.enc_num_unit, kernel_size = args.enc_kernel_size)
+
+        self.enc_linear_3    = torch.nn.Conv2d(args.enc_num_unit, 1, 1, 1, 0, bias=True)
+
+    def set_interleaver(self, p_array):
+        pass
+
+
+    def set_parallel(self):
+        self.enc_cnn_1 = torch.nn.DataParallel(self.enc_cnn_1)
+        self.enc_cnn_2 = torch.nn.DataParallel(self.enc_cnn_2)
+        self.enc_cnn_3 = torch.nn.DataParallel(self.enc_cnn_3)
+        self.enc_linear_1 = torch.nn.DataParallel(self.enc_linear_1)
+        self.enc_linear_2 = torch.nn.DataParallel(self.enc_linear_2)
+        self.enc_linear_3 = torch.nn.DataParallel(self.enc_linear_3)
+
+    def forward(self, inputs):
+        img_size   = int(np.sqrt(self.args.block_len))
+        inputs     = inputs.permute(0,2,1).view(self.args.batch_size, 1, img_size, img_size)
+
+        inputs     = 2.0*inputs - 1.0
+        x_sys      = self.enc_cnn_1(inputs)
+        x_sys      = self.enc_act(self.enc_linear_1(x_sys))
+
+        x_p1       = self.enc_cnn_2(inputs)
+        x_p1       = self.enc_act(self.enc_linear_2(x_p1))
+
+        x_p2       = self.enc_cnn_3(inputs)
+        x_p2       = self.enc_act(self.enc_linear_3(x_p2))
+
+        x_tx       = torch.cat([x_sys,x_p1, x_p2], dim = 1)
+        x_tx = x_tx.view(self.args.batch_size, self.args.code_rate_n, self.args.block_len)
+        x_tx = x_tx.permute(0, 2, 1).contiguous()
+
+        codes = self.power_constraint(x_tx)
+
+        return codes
+
+
+
 #######################################################
 # CNN Encocder, with rate 1/3, CNN-1D same shape only
 # No interleaver
@@ -678,9 +747,6 @@ class CNN_encoder_rate2(ENCBase):
         codes = self.power_constraint(x_tx)
 
         return codes
-
-
-
 
 
 

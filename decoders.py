@@ -484,6 +484,49 @@ class DEC_LargeCNN2D(torch.nn.Module):
 
         return final
 
+
+# experimental cnn 2d without interleaver
+
+class DEC_CNN2D(torch.nn.Module):
+    def __init__(self, args, p_array):
+        super(DEC_CNN2D, self).__init__()
+        self.args = args
+
+        use_cuda = not args.no_cuda and torch.cuda.is_available()
+        self.this_device = torch.device("cuda" if use_cuda else "cpu")
+
+        if self.args.encoder == 'TurboAE_rate3_cnn2d_dense':
+            CNN2d = DenseSameShapeConv2d
+        else:
+            CNN2d = SameShapeConv2d
+
+        self.dec = CNN2d(num_layer=args.dec_num_layer, in_channels=3,
+                         out_channels= args.dec_num_unit, kernel_size = args.dec_kernel_size)
+        self.output = CNN2d(1, args.dec_num_unit, 1, kernel_size=1)
+
+
+    def set_parallel(self):
+        pass
+
+    def set_interleaver(self, p_array):
+        pass
+
+    def forward(self, received):
+        received = received.type(torch.FloatTensor).to(self.this_device)
+        received = received.view(self.args.batch_size, self.args.img_size, self.args.img_size, self.args.code_rate_n)
+        received = received.permute(0, 3, 1,2)
+
+        x = self.dec(received)
+        x = self.output(x)
+
+        final      = torch.sigmoid(x)
+        final      = final.view(self.args.batch_size, self.args.code_rate_k, self.args.block_len)
+        final      = final.permute(0,2,1)
+
+        return final
+
+
+
 ##################################################
 # DTA Decoder with rate 1/2
 ##################################################
