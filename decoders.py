@@ -6,6 +6,8 @@ import torch
 
 from numpy import arange
 from numpy.random import mtrand
+import numpy as np
+
 ##################################################
 # DTA Decoder with rate 1/3
 # RNN version
@@ -202,15 +204,27 @@ class DEC_LargeCNN(torch.nn.Module):
         self.deinterleaver.set_parray(p_array)
 
     def forward(self, received):
+
+        if self.args.is_variable_block_len:
+            block_len = received.shape[1]
+            # reset interleaver
+            if self.args.is_interleave != 0:           # fixed interleaver.
+                seed = np.random.randint(0, self.args.is_interleave)
+                rand_gen = mtrand.RandomState(seed)
+                p_array = rand_gen.permutation(arange(block_len))
+                self.set_interleaver(p_array)
+        else:
+            block_len = self.args.block_len
+
         received = received.type(torch.FloatTensor).to(self.this_device)
         # Turbo Decoder
-        r_sys     = received[:,:,0].view((self.args.batch_size, self.args.block_len, 1))
+        r_sys     = received[:,:,0].view((self.args.batch_size, block_len, 1))
         r_sys_int = self.interleaver(r_sys)
-        r_par1    = received[:,:,1].view((self.args.batch_size, self.args.block_len, 1))
-        r_par2    = received[:,:,2].view((self.args.batch_size, self.args.block_len, 1))
+        r_par1    = received[:,:,1].view((self.args.batch_size, block_len, 1))
+        r_par2    = received[:,:,2].view((self.args.batch_size, block_len, 1))
 
         #num_iteration,
-        prior = torch.zeros((self.args.batch_size, self.args.block_len, self.args.num_iter_ft)).to(self.this_device)
+        prior = torch.zeros((self.args.batch_size, block_len, self.args.num_iter_ft)).to(self.this_device)
 
         for idx in range(self.args.num_iteration - 1):
             x_this_dec = torch.cat([r_sys, r_par1, prior], dim = 2)

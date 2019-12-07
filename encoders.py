@@ -354,6 +354,16 @@ class ENC_interCNN(ENCBase):
         self.enc_linear_3 = torch.nn.DataParallel(self.enc_linear_3)
 
     def forward(self, inputs):
+
+        if self.args.is_variable_block_len:
+            block_len = inputs.shape[1]
+            # reset interleaver
+            if self.args.is_interleave != 0:           # fixed interleaver.
+                seed = np.random.randint(0, self.args.is_interleave)
+                rand_gen = mtrand.RandomState(seed)
+                p_array = rand_gen.permutation(arange(block_len))
+                self.set_interleaver(p_array)
+
         inputs     = 2.0*inputs - 1.0
         x_sys      = self.enc_cnn_1(inputs)
         x_sys      = self.enc_act(self.enc_linear_1(x_sys))
@@ -362,7 +372,6 @@ class ENC_interCNN(ENCBase):
         x_p1       = self.enc_act(self.enc_linear_2(x_p1))
 
         x_sys_int  = self.interleaver(inputs)
-
         x_p2       = self.enc_cnn_3(x_sys_int)
         x_p2       = self.enc_act(self.enc_linear_3(x_p2))
 

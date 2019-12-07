@@ -233,7 +233,17 @@ if __name__ == '__main__':
     #################################################
     # Testing Processes
     #################################################
-    test(model, args, use_cuda = use_cuda)
+
+    if args.is_variable_block_len:
+        print('testing block length',args.block_len_low )
+        test(model, args, block_len=args.block_len_low, use_cuda = use_cuda)
+        print('testing block length',args.block_len )
+        test(model, args, block_len=args.block_len, use_cuda = use_cuda)
+        print('testing block length',args.block_len_high )
+        test(model, args, block_len=args.block_len_high, use_cuda = use_cuda)
+
+    else:
+        test(model, args, use_cuda = use_cuda)
 
     torch.save(model.state_dict(), './tmp/torch_model_'+identity+'.pt')
     print('saved model', './tmp/torch_model_'+identity+'.pt')

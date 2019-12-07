@@ -9,18 +9,14 @@ from utils import snr_sigma2db, snr_db2sigma, code_power, errors_ber_pos, errors
 from loss import customized_loss
 from channels import generate_noise
 
-import numpy as np
-from numpy import arange
-from numpy.random import mtrand
-
 ######################################################################################
 #
-# Trainer, validation, and test for AE code design
+# Trainer, validation, and test for Feedback Block Delay Channel Autoencoder
 #
 ######################################################################################
 
 
-def train(epoch, model, optimizer, args, use_cuda = False, verbose = True, mode = 'encoder'):
+def ftae_train(epoch, model, optimizer, args, use_cuda = False, verbose = True, mode = 'encoder'):
 
     device = torch.device("cuda" if use_cuda else "cpu")
 
@@ -32,26 +28,19 @@ def train(epoch, model, optimizer, args, use_cuda = False, verbose = True, mode 
 
     for batch_idx in range(int(args.num_block/args.batch_size)):
 
-
-        if args.is_variable_block_len:
-            block_len = np.random.randint(args.block_len_low, args.block_len_high)
-        else:
-            block_len = args.block_len
-
         optimizer.zero_grad()
 
         if args.is_k_same_code and mode == 'encoder':
             if batch_idx == 0:
                 k_same_code_counter += 1
-                X_train    = torch.randint(0, 2, (args.batch_size, block_len, args.code_rate_k), dtype=torch.float)
+                X_train    = torch.randint(0, 2, (args.batch_size, args.block_len, args.code_rate_k), dtype=torch.float)
             elif k_same_code_counter == args.k_same_code:
                 k_same_code_counter = 1
-                X_train    = torch.randint(0, 2, (args.batch_size, block_len, args.code_rate_k), dtype=torch.float)
+                X_train    = torch.randint(0, 2, (args.batch_size, args.block_len, args.code_rate_k), dtype=torch.float)
             else:
                 k_same_code_counter += 1
         else:
-            X_train    = torch.randint(0, 2, (args.batch_size, block_len, args.code_rate_k), dtype=torch.float)
-
+            X_train    = torch.randint(0, 2, (args.batch_size, args.block_len, args.code_rate_k), dtype=torch.float)
 
         # train encoder/decoder with different SNR... seems to be a good practice.
         if mode == 'encoder':
@@ -85,7 +74,7 @@ def train(epoch, model, optimizer, args, use_cuda = False, verbose = True, mode 
 
 
 
-def validate(model, optimizer, args, use_cuda = False, verbose = True):
+def ftae_validate(model, optimizer, args, use_cuda = False, verbose = True):
 
     device = torch.device("cuda" if use_cuda else "cpu")
 
@@ -131,21 +120,16 @@ def validate(model, optimizer, args, use_cuda = False, verbose = True):
     return report_loss, report_ber
 
 
-def test(model, args, block_len = 'default',use_cuda = False):
+def ftae_test(model, args, use_cuda = False):
 
     device = torch.device("cuda" if use_cuda else "cpu")
     model.eval()
-
-    if block_len == 'default':
-        block_len = args.block_len
-    else:
-        pass
 
     # Precomputes Norm Statistics.
     if args.precompute_norm_stats:
         num_test_batch = int(args.num_block/(args.batch_size)* args.test_ratio)
         for batch_idx in range(num_test_batch):
-            X_test = torch.randint(0, 2, (args.batch_size, block_len, args.code_rate_k), dtype=torch.float)
+            X_test = torch.randint(0, 2, (args.batch_size, args.block_len, args.code_rate_k), dtype=torch.float)
             X_test = X_test.to(device)
             _      = model.enc(X_test)
         print('Pre-computed norm statistics mean ',model.enc.mean_scalar, 'std ', model.enc.std_scalar)
@@ -161,7 +145,7 @@ def test(model, args, block_len = 'default',use_cuda = False):
         with torch.no_grad():
             num_test_batch = int(args.num_block/(args.batch_size)* args.test_ratio)
             for batch_idx in range(num_test_batch):
-                X_test     = torch.randint(0, 2, (args.batch_size, block_len, args.code_rate_k), dtype=torch.float)
+                X_test     = torch.randint(0, 2, (args.batch_size, args.block_len, args.code_rate_k), dtype=torch.float)
                 fwd_noise  = generate_noise(X_test.shape, args, test_sigma=sigma)
 
                 X_test, fwd_noise= X_test.to(device), fwd_noise.to(device)
@@ -198,7 +182,7 @@ def test(model, args, block_len = 'default',use_cuda = False):
     enc_power = 0.0
     with torch.no_grad():
         for idx in range(num_test_batch):
-            X_test     = torch.randint(0, 2, (args.batch_size, block_len, args.code_rate_k), dtype=torch.float)
+            X_test     = torch.randint(0, 2, (args.batch_size, args.block_len, args.code_rate_k), dtype=torch.float)
             X_test     = X_test.to(device)
             X_code     = model.enc(X_test)
             enc_power +=  torch.std(X_code)

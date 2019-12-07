@@ -30,7 +30,7 @@ class DeInterleaver(torch.nn.Module):
         for idx in range(len(p_array)):
             self.reverse_p_array[p_array[idx]] = idx
 
-        self.reverse_p_array = torch.LongTensor(self.reverse_p_array).view(self.args.block_len)
+        self.reverse_p_array = torch.LongTensor(self.reverse_p_array).view(len(p_array))
 
     def set_parray(self, p_array):
 
@@ -38,7 +38,7 @@ class DeInterleaver(torch.nn.Module):
         for idx in range(len(p_array)):
             self.reverse_p_array[p_array[idx]] = idx
 
-        self.reverse_p_array = torch.LongTensor(self.reverse_p_array).view(self.args.block_len)
+        self.reverse_p_array = torch.LongTensor(self.reverse_p_array).view(len(p_array))
 
     def forward(self, inputs):
         inputs = inputs.permute(1,0,2)
