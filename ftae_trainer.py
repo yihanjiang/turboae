@@ -23,34 +23,22 @@ def ftae_train(epoch, model, optimizer, args, use_cuda = False, verbose = True, 
     model.train()
     start_time = time.time()
     train_loss = 0.0
-    k_same_code_counter = 0
-
 
     for batch_idx in range(int(args.num_block/args.batch_size)):
 
         optimizer.zero_grad()
+        X_train    = torch.randint(0, 2, (args.batch_size, args.block_len, args.code_rate_k), dtype=torch.float)
 
-        if args.is_k_same_code and mode == 'encoder':
-            if batch_idx == 0:
-                k_same_code_counter += 1
-                X_train    = torch.randint(0, 2, (args.batch_size, args.block_len, args.code_rate_k), dtype=torch.float)
-            elif k_same_code_counter == args.k_same_code:
-                k_same_code_counter = 1
-                X_train    = torch.randint(0, 2, (args.batch_size, args.block_len, args.code_rate_k), dtype=torch.float)
-            else:
-                k_same_code_counter += 1
-        else:
-            X_train    = torch.randint(0, 2, (args.batch_size, args.block_len, args.code_rate_k), dtype=torch.float)
-
-        # train encoder/decoder with different SNR... seems to be a good practice.
         if mode == 'encoder':
             fwd_noise  = generate_noise(X_train.shape, args, snr_low=args.train_enc_channel_low, snr_high=args.train_enc_channel_high, mode = 'encoder')
         else:
             fwd_noise  = generate_noise(X_train.shape, args, snr_low=args.train_dec_channel_low, snr_high=args.train_dec_channel_high, mode = 'decoder')
 
-        X_train, fwd_noise = X_train.to(device), fwd_noise.to(device)
+        fb_noise = generate_noise(X_train.shape, args, snr_low=args.fb_channel_low, snr_high=args.fb_channel_high, mode = 'decoder')
 
-        output, code = model(X_train, fwd_noise)
+        X_train, fwd_noise, fb_noise = X_train.to(device), fwd_noise.to(device), fb_noise.to(device)
+
+        output, code = model(X_train, fwd_noise, fb_noise)
         output = torch.clamp(output, 0.0, 1.0)
 
         if mode == 'encoder':
@@ -58,7 +46,6 @@ def ftae_train(epoch, model, optimizer, args, use_cuda = False, verbose = True, 
 
         else:
             loss = customized_loss(output, X_train, args, noise=fwd_noise, code = code)
-            #loss = F.binary_cross_entropy(output, X_train)
 
         loss.backward()
         train_loss += loss.item()
@@ -71,8 +58,6 @@ def ftae_train(epoch, model, optimizer, args, use_cuda = False, verbose = True, 
             ' running time', str(end_time - start_time))
 
     return train_loss
-
-
 
 def ftae_validate(model, optimizer, args, use_cuda = False, verbose = True):
 
@@ -89,10 +74,13 @@ def ftae_validate(model, optimizer, args, use_cuda = False, verbose = True):
                                         snr_low=args.train_enc_channel_low,
                                         snr_high=args.train_enc_channel_low)
 
-            X_test, fwd_noise= X_test.to(device), fwd_noise.to(device)
+            fb_noise = generate_noise(X_test.shape, args,
+                                      snr_low=args.fb_channel_low, snr_high=args.fb_channel_high, mode = 'decoder')
+
+            X_test, fwd_noise, fb_noise= X_test.to(device), fwd_noise.to(device), fb_noise.to(device)
 
             optimizer.zero_grad()
-            output, codes = model(X_test, fwd_noise)
+            output, codes = model(X_test, fwd_noise, fb_noise)
 
             output = torch.clamp(output, 0.0, 1.0)
 
@@ -148,9 +136,12 @@ def ftae_test(model, args, use_cuda = False):
                 X_test     = torch.randint(0, 2, (args.batch_size, args.block_len, args.code_rate_k), dtype=torch.float)
                 fwd_noise  = generate_noise(X_test.shape, args, test_sigma=sigma)
 
-                X_test, fwd_noise= X_test.to(device), fwd_noise.to(device)
+                fb_noise = generate_noise(X_test.shape, args,
+                                          snr_low=args.fb_channel_low, snr_high=args.fb_channel_high, mode = 'decoder')
 
-                X_hat_test, the_codes = model(X_test, fwd_noise)
+                X_test, fwd_noise, fb_noise= X_test.to(device), fwd_noise.to(device), fb_noise.to(device)
+
+                X_hat_test, the_codes = model(X_test, fwd_noise, fb_noise)
 
 
                 test_ber  += errors_ber(X_hat_test,X_test)
@@ -178,18 +169,7 @@ def ftae_test(model, args, use_cuda = False):
     print('BER', ber_res)
     print('BLER', bler_res)
 
-    # compute adjusted SNR. (some quantization might make power!=1.0)
-    enc_power = 0.0
-    with torch.no_grad():
-        for idx in range(num_test_batch):
-            X_test     = torch.randint(0, 2, (args.batch_size, args.block_len, args.code_rate_k), dtype=torch.float)
-            X_test     = X_test.to(device)
-            X_code     = model.enc(X_test)
-            enc_power +=  torch.std(X_code)
-    enc_power /= float(num_test_batch)
-    print('encoder power is',enc_power)
-    adj_snrs = [snr_sigma2db(snr_db2sigma(item)/enc_power) for item in snrs]
-    print('adjusted SNR should be',adj_snrs)
+
 
 
 

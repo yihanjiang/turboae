@@ -3,15 +3,13 @@ import torch
 import torch.optim as optim
 import numpy as np
 import sys
-from get_args import get_args
-from trainer import train, validate, test, train_hardexample
-
-from ftae_trainer import ftae_train, ftae_validate, ftae_test
+from ftae_get_args import get_args
+from ftae_trainer  import ftae_train, ftae_validate, ftae_test
 
 from numpy import arange
 from numpy.random import mtrand
 
-from ftae_ae import Channel_Feedback
+from ftae_ae import Channel_Feedback_rate3
 
 
 # utils for logger
@@ -53,6 +51,7 @@ if __name__ == '__main__':
         seed = np.random.randint(0, 1)
         rand_gen = mtrand.RandomState(seed)
         p_array = rand_gen.permutation(arange(args.block_len))
+        print('using random interleaver', p_array)
 
     elif args.is_interleave == 0:
         p_array = range(args.block_len)
@@ -60,14 +59,9 @@ if __name__ == '__main__':
         seed = np.random.randint(0, args.is_interleave)
         rand_gen = mtrand.RandomState(seed)
         p_array = rand_gen.permutation(arange(args.block_len))
-
-    if args.codec not in ['deepcode_cnn', 'deepcode_rnn']:
         print('using random interleaver', p_array)
 
-    if args.send_error_back:
-        model = Channel_Active_Block_Feedback(args, p_array).to(device)
-    else:
-        model = Channel_Feedback(args, p_array).to(device)
+    model = Channel_Feedback_rate3(args, p_array).to(device)
 
     # weight loading
     if args.init_nw_weight == 'default':
@@ -90,9 +84,11 @@ if __name__ == '__main__':
     #################################################
     # Setup Optimizers
     #################################################
+    enc_params = list(model.fwd_enc1.parameters()) + list(model.fwd_enc2.parameters()) + list(model.fwd_enc3.parameters())
+    enc_optimizer = optim.Adam(enc_params,lr=args.enc_lr)
 
-    enc_optimizer = optim.Adam(model.enc.parameters(),lr=args.enc_lr)
-    dec_optimizer = optim.Adam(filter(lambda p: p.requires_grad, model.dec.parameters()), lr=args.dec_lr)
+    dec_params = list(model.fb_enc1.parameters()) + list(model.fb_enc2.parameters()) + list(model.dec.parameters())
+    dec_optimizer = optim.Adam(dec_params, lr=args.dec_lr)
     general_optimizer = optim.Adam(filter(lambda p: p.requires_grad, model.parameters()),lr=args.dec_lr)
 
     #################################################
@@ -100,36 +96,18 @@ if __name__ == '__main__':
     #################################################
 
     report_loss, report_ber, report_MI = [], [], []
-    baseline    = 0.0
-
-    hard_examples = None
 
     for epoch in range(1, args.num_epoch + 1):
-        if args.is_joint_train:
-            for idx in range(args.num_train_enc+args.num_train_dec):
-                train(epoch, model, general_optimizer, args, use_cuda = use_cuda, mode ='encoder')
-
-        else:
-            if args.num_train_enc > 0:
-                for idx in range(args.num_train_enc):
-                    if args.hard_example:
-                        train_loss, hard_examples = train_hardexample(epoch, model, enc_optimizer, args, use_cuda = use_cuda,
-                                                      mode ='encoder',
-                                                      hard_examples = hard_examples)
-                    else:
-                        train(epoch, model, enc_optimizer, args, use_cuda = use_cuda, mode ='encoder')
+        if args.num_train_enc > 0:
+            for idx in range(args.num_train_enc):
+                ftae_train(epoch, model, enc_optimizer, args, use_cuda = use_cuda, mode ='encoder')
 
 
-            if args.num_train_dec > 0:
-                for idx in range(args.num_train_dec):
-                    if args.hard_example:
-                        train_loss, hard_examples =  train_hardexample(epoch, model, dec_optimizer, args, use_cuda = use_cuda,
-                                                      mode ='decoder',
-                                                      hard_examples = hard_examples)
-                    else:
-                        train(epoch, model, dec_optimizer, args, use_cuda = use_cuda, mode ='decoder')
+        if args.num_train_dec > 0:
+            for idx in range(args.num_train_dec):
+                ftae_train(epoch, model, dec_optimizer, args, use_cuda = use_cuda, mode ='decoder')
 
-        this_loss, this_ber = validate(model, general_optimizer, args, use_cuda = use_cuda)
+        this_loss, this_ber = ftae_validate(model, general_optimizer, args, use_cuda = use_cuda)
         report_loss.append(this_loss)
         report_ber.append(this_ber)
 
@@ -141,7 +119,7 @@ if __name__ == '__main__':
     #################################################
     # Testing Processes
     #################################################
-    test(model, args, use_cuda = use_cuda)
+    ftae_test(model, args, use_cuda = use_cuda)
 
     torch.save(model.state_dict(), './tmp/torch_model_'+identity+'.pt')
     print('saved model', './tmp/torch_model_'+identity+'.pt')
