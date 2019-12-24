@@ -69,8 +69,6 @@ def get_args():
     parser.add_argument('-fb_channel_high', type=float, default = 10.0)
 
 
-
-
     parser.add_argument('-init_nw_weight', type=str, default='default')
 
     # code rate is k/n, so that enable multiple code rates. This has to match the encoder/decoder nw structure.

@@ -4,7 +4,7 @@ import torch.nn.functional as F
 
 # utility for Same Shape CNN 1D
 class SameShapeConv1d(torch.nn.Module):
-    def __init__(self, num_layer, in_channels, out_channels, kernel_size):
+    def __init__(self, num_layer, in_channels, out_channels, kernel_size, activation = 'elu'):
         super(SameShapeConv1d, self).__init__()
 
         self.cnns = torch.nn.ModuleList()
@@ -21,11 +21,22 @@ class SameShapeConv1d(torch.nn.Module):
                                                       dilation=1, groups=1, bias=True)
                 )
 
+        if activation == 'elu':
+            self.activation = F.elu
+        elif activation == 'relu':
+            self.activation = F.relu
+        elif activation == 'selu':
+            self.activation = F.selu
+        elif activation == 'prelu':
+            self.activation = F.prelu
+        else:
+            self.activation = F.elu
+
     def forward(self, inputs):
         inputs = torch.transpose(inputs, 1,2)
         x = inputs
         for idx in range(self.num_layer):
-            x = F.elu(self.cnns[idx](x))
+            x = self.activation(self.cnns[idx](x))
 
         outputs = torch.transpose(x, 1,2)
         return outputs

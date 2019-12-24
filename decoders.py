@@ -393,6 +393,7 @@ class DEC_LargeCNN2Int(torch.nn.Module):
 # experimental cnn 2d
 from encoders import SameShapeConv2d, DenseSameShapeConv2d
 from interleavers import DeInterleaver2D, Interleaver2D
+
 class DEC_LargeCNN2D(torch.nn.Module):
     def __init__(self, args, p_array):
         super(DEC_LargeCNN2D, self).__init__()
@@ -444,7 +445,7 @@ class DEC_LargeCNN2D(torch.nn.Module):
     def forward(self, received):
         received = received.type(torch.FloatTensor).to(self.this_device)
         received = received.view(self.args.batch_size, self.args.img_size, self.args.img_size, self.args.code_rate_n)
-        received = received.permute(0, 3, 1,2)
+        received = received.permute(0, 3, 1, 2)
         # Turbo Decoder
         r_sys     = received[:,0,:, :].view((self.args.batch_size, 1, self.args.img_size, self.args.img_size))
         r_sys_int = self.interleaver(r_sys)
@@ -528,7 +529,7 @@ class DEC_CNN2D(torch.nn.Module):
     def forward(self, received):
         received = received.type(torch.FloatTensor).to(self.this_device)
         received = received.view(self.args.batch_size, self.args.img_size, self.args.img_size, self.args.code_rate_n)
-        received = received.permute(0, 3, 1,2)
+        received = received.permute(0, 3, 1, 2)
 
         x = self.dec(received)
         x = self.output(x)
