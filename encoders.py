@@ -126,6 +126,8 @@ class ENCBase(torch.nn.Module):
                 stequantize = STEQuantize.apply
                 x_input_norm = stequantize(x_input_norm, self.args)
 
+        if self.args.enc_truncate_limit>0:
+            x_input_norm = torch.clamp(x_input_norm, -self.args.enc_truncate_limit, self.args.enc_truncate_limit)
 
         return x_input_norm
 
@@ -531,17 +533,20 @@ class ENC_interCNN2D(ENCBase):
         self.enc_cnn_1       = CNN2d(num_layer=args.enc_num_layer, in_channels=args.code_rate_k,
                                                   out_channels= args.enc_num_unit, kernel_size = args.enc_kernel_size)
 
-        self.enc_linear_1    =  torch.nn.Conv2d(args.enc_num_unit, 1, 1, 1, 0, bias=True)
+        self.enc_linear_1    =  CNN2d(num_layer=1, in_channels= args.enc_num_unit,
+                                      out_channels= 1, kernel_size = 1, no_act=True)
 
         self.enc_cnn_2       = CNN2d(num_layer=args.enc_num_layer, in_channels=args.code_rate_k,
                                                   out_channels= args.enc_num_unit, kernel_size = args.enc_kernel_size)
 
-        self.enc_linear_2    = torch.nn.Conv2d(args.enc_num_unit, 1, 1, 1, 0, bias=True)
+        self.enc_linear_2    = CNN2d(num_layer=1, in_channels= args.enc_num_unit,
+                                                  out_channels= 1, kernel_size = 1, no_act=True)
 
         self.enc_cnn_3       = CNN2d(num_layer=args.enc_num_layer, in_channels=args.code_rate_k,
                                                   out_channels= args.enc_num_unit, kernel_size = args.enc_kernel_size)
 
-        self.enc_linear_3    = torch.nn.Conv2d(args.enc_num_unit, 1, 1, 1, 0, bias=True)
+        self.enc_linear_3    = CNN2d(num_layer=1, in_channels= args.enc_num_unit,
+                                                  out_channels= 1, kernel_size = 1, no_act=True)
 
         self.interleaver      = Interleaver2D(args, p_array)
 
@@ -563,15 +568,15 @@ class ENC_interCNN2D(ENCBase):
 
         inputs     = 2.0*inputs - 1.0
         x_sys      = self.enc_cnn_1(inputs)
-        x_sys      = self.enc_act(self.enc_linear_1(x_sys))
+        x_sys      = self.enc_linear_1(x_sys)
 
         x_p1       = self.enc_cnn_2(inputs)
-        x_p1       = self.enc_act(self.enc_linear_2(x_p1))
+        x_p1       = self.enc_linear_2(x_p1)
 
         x_sys_int  = self.interleaver(inputs)
 
         x_p2       = self.enc_cnn_3(x_sys_int)
-        x_p2       = self.enc_act(self.enc_linear_3(x_p2))
+        x_p2       = self.enc_linear_3(x_p2)
 
         x_tx       = torch.cat([x_sys,x_p1, x_p2], dim = 1)
         x_tx = x_tx.view(self.args.batch_size, self.args.code_rate_n, self.args.block_len)

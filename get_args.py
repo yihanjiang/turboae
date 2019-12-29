@@ -131,6 +131,7 @@ def get_args():
     parser.add_argument('-train_channel_mode',
                         choices=['block_norm','block_norm_ste'],
                         default='block_norm')
+    parser.add_argument('-enc_truncate_limit', type=float, default=0, help='0 means no truncation')
 
 
     ################################################################
@@ -154,7 +155,7 @@ def get_args():
     # Loss related parameters
     ################################################################
 
-    parser.add_argument('-loss', choices=['bce', 'mse','focal', 'bce_block', 'maxBCE', 'bce_rl', 'enc_rl', 'soft_ber'],
+    parser.add_argument('-loss', choices=['bce', 'mse','focal', 'bce_block', 'maxBCE', 'bce_rl', 'enc_rl', 'soft_ber', 'sortBCE'],
                         default='bce', help='only BCE works')
 
     parser.add_argument('-ber_lambda', type = float, default=1.0, help = 'default 0.0, the more emphasis on BER loss, only for bce_rl')

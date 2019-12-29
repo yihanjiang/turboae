@@ -86,10 +86,25 @@ def customized_loss(output, X_train, args, size_average = True, noise = None, co
         BCE_loss_tmp = F.binary_cross_entropy(output, X_train, reduce=False)
 
         bce_loss = torch.mean(BCE_loss_tmp)
-        tmp, _ = torch.max(BCE_loss_tmp, dim=1, keepdim=False)
+        pos_loss = torch.mean(BCE_loss_tmp, dim=0)
+
+        tmp, _ = torch.max(pos_loss, dim=0)
         max_loss     = torch.mean(tmp)
 
         loss = bce_loss + args.lambda_maxBCE * max_loss
+
+    elif args.loss == 'sortBCE':
+        output = torch.clamp(output, 0.0, 1.0)
+        BCE_loss_tmp = F.binary_cross_entropy(output, X_train, reduce=False)
+
+        bce_loss = torch.mean(BCE_loss_tmp)
+        pos_loss = torch.mean(BCE_loss_tmp, dim=0)
+
+        tmp, _ = torch.sort(pos_loss, dim=-1, descending=True, out=None)
+
+        sort_loss     = torch.sum(tmp[:5, :])
+
+        loss = bce_loss + args.lambda_maxBCE * sort_loss
 
     return loss
 
