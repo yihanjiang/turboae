@@ -277,22 +277,15 @@ class DEC_LargeCNN(torch.nn.Module):
 
 from encoders import SameShapeConv1d
 class DEC_LargeCNN2Int(torch.nn.Module):
-    def __init__(self, args, p_array):
+    def __init__(self, args, p_array1, p_array2):
         super(DEC_LargeCNN2Int, self).__init__()
         self.args = args
 
         use_cuda = not args.no_cuda and torch.cuda.is_available()
         self.this_device = torch.device("cuda" if use_cuda else "cpu")
 
-        self.interleaver1          = Interleaver(args, p_array)
-        self.deinterleaver1        = DeInterleaver(args, p_array)
-
-        seed2 = 1000
-        rand_gen2 = mtrand.RandomState(seed2)
-        p_array2 = rand_gen2.permutation(arange(args.block_len))
-
-        print('p_array1 dec', p_array)
-        print('p_array2 dec', p_array2)
+        self.interleaver1          = Interleaver(args, p_array1)
+        self.deinterleaver1        = DeInterleaver(args, p_array1)
 
         self.interleaver2          = Interleaver(args, p_array2)
         self.deinterleaver2        = DeInterleaver(args, p_array2)

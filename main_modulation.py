@@ -8,7 +8,7 @@ import torch.optim as optim
 import numpy as np
 import sys
 from get_args import get_args
-from trainer import train, validate, test
+from mod_trainer import train, validate, test
 
 from numpy import arange
 from numpy.random import mtrand
@@ -146,11 +146,16 @@ if __name__ == '__main__':
         encoder = ENC(args, p_array1)
         decoder = DEC(args, p_array1)
 
-    # choose support channels
-    from channel_ae import Channel_AE
-    model = Channel_AE(args, encoder, decoder).to(device)
+    # modulation and demodulations.
+    from modulations import Modulation, DeModulation
 
-    # model = Channel_ModAE(args, encoder, decoder).to(device)
+    modulator = Modulation(args)
+    demodulator = DeModulation(args)
+
+    # choose support channels
+    from channel_ae import Channel_ModAE
+    model = Channel_ModAE(args, encoder, decoder, modulator, demodulator).to(device)
+
 
 
     # make the model parallel
@@ -210,6 +215,12 @@ if __name__ == '__main__':
         if args.num_train_dec != 0:
             dec_optimizer = OPT(filter(lambda p: p.requires_grad, model.dec.parameters()), lr=args.dec_lr)
 
+        if args.num_train_mod != 0:
+            mod_optimizer = OPT(filter(lambda p: p.requires_grad, model.mod.parameters()), lr=args.mod_lr)
+
+        if args.num_train_demod != 0:
+            demod_optimizer = OPT(filter(lambda p: p.requires_grad, model.demod.parameters()), lr=args.demod_lr)
+
         general_optimizer = OPT(filter(lambda p: p.requires_grad, model.parameters()),lr=args.dec_lr)
 
     #################################################
@@ -231,6 +242,14 @@ if __name__ == '__main__':
             if args.num_train_dec > 0:
                 for idx in range(args.num_train_dec):
                     train(epoch, model, dec_optimizer, args, use_cuda = use_cuda, mode ='decoder')
+
+            if args.num_train_mod > 0:
+                for idx in range(args.num_train_mod):
+                    train(epoch, model, mod_optimizer, args, use_cuda = use_cuda, mode ='decoder')
+
+            if args.num_train_demod > 0:
+                for idx in range(args.num_train_demod):
+                    train(epoch, model, demod_optimizer, args, use_cuda = use_cuda, mode ='decoder')
 
         this_loss, this_ber  = validate(model, general_optimizer, args, use_cuda = use_cuda)
         report_loss.append(this_loss)

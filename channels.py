@@ -4,7 +4,7 @@ import torch
 from utils import snr_db2sigma, snr_sigma2db
 import numpy as np
 
-def generate_noise(X_train_shape, args, test_sigma = 'default', snr_low = 0.0, snr_high = 0.0, mode = 'encoder'):
+def generate_noise(noise_shape, args, test_sigma = 'default', snr_low = 0.0, snr_high = 0.0, mode = 'encoder'):
     # SNRs at training
     if test_sigma == 'default':
         if args.channel == 'bec':
@@ -22,7 +22,7 @@ def generate_noise(X_train_shape, args, test_sigma = 'default', snr_low = 0.0, s
             this_sigma_low = snr_db2sigma(snr_low)
             this_sigma_high= snr_db2sigma(snr_high)
             # mixture of noise sigma.
-            this_sigma = (this_sigma_low - this_sigma_high) * torch.rand((X_train_shape[0], X_train_shape[1], args.code_rate_n)) + this_sigma_high
+            this_sigma = (this_sigma_low - this_sigma_high) * torch.rand(noise_shape) + this_sigma_high
 
     else:
         if args.channel in ['bec', 'bsc', 'ge']:  # bsc/bec noises
@@ -32,25 +32,25 @@ def generate_noise(X_train_shape, args, test_sigma = 'default', snr_low = 0.0, s
 
     # SNRs at testing
     if args.channel == 'awgn':
-        fwd_noise  = this_sigma * torch.randn((X_train_shape[0], X_train_shape[1], args.code_rate_n), dtype=torch.float)
+        fwd_noise  = this_sigma * torch.randn(noise_shape, dtype=torch.float)
 
     elif args.channel == 't-dist':
-        fwd_noise  = this_sigma * torch.from_numpy(np.sqrt((args.vv-2)/args.vv) * np.random.standard_t(args.vv, size = (X_train_shape[0], X_train_shape[1], args.code_rate_n))).type(torch.FloatTensor)
+        fwd_noise  = this_sigma * torch.from_numpy(np.sqrt((args.vv-2)/args.vv) * np.random.standard_t(args.vv, size = noise_shape)).type(torch.FloatTensor)
 
     elif args.channel == 'radar':
-        add_pos     = np.random.choice([0.0, 1.0], (X_train_shape[0], X_train_shape[1], args.code_rate_n),
+        add_pos     = np.random.choice([0.0, 1.0], noise_shape,
                                        p=[1 - args.radar_prob, args.radar_prob])
 
-        corrupted_signal = args.radar_power* np.random.standard_normal( size = (X_train_shape[0], X_train_shape[1], args.code_rate_n) ) * add_pos
-        fwd_noise = this_sigma * torch.randn((X_train_shape[0], X_train_shape[1], args.code_rate_n), dtype=torch.float) +\
+        corrupted_signal = args.radar_power* np.random.standard_normal( size = noise_shape ) * add_pos
+        fwd_noise = this_sigma * torch.randn(noise_shape, dtype=torch.float) +\
                     torch.from_numpy(corrupted_signal).type(torch.FloatTensor)
 
     elif args.channel == 'bec':
-        fwd_noise = torch.from_numpy(np.random.choice([0.0, 1.0], (X_train_shape[0], X_train_shape[1], args.code_rate_n),
+        fwd_noise = torch.from_numpy(np.random.choice([0.0, 1.0], noise_shape,
                                         p=[this_sigma, 1 - this_sigma])).type(torch.FloatTensor)
 
     elif args.channel == 'bsc':
-        fwd_noise = torch.from_numpy(np.random.choice([0.0, 1.0], (X_train_shape[0], X_train_shape[1], args.code_rate_n),
+        fwd_noise = torch.from_numpy(np.random.choice([0.0, 1.0], noise_shape,
                                         p=[this_sigma, 1 - this_sigma])).type(torch.FloatTensor)
     elif args.channel == 'ge_awgn':
         #G-E AWGN channel
@@ -59,12 +59,12 @@ def generate_noise(X_train_shape, args, test_sigma = 'default', snr_low = 0.0, s
         bsc_k = snr_db2sigma(snr_sigma2db(this_sigma) + 1)          # accuracy on good state
         bsc_h = snr_db2sigma(snr_sigma2db(this_sigma) - 1)   # accuracy on good state
 
-        fwd_noise = np.zeros((X_train_shape[0], X_train_shape[1], args.code_rate_n))
-        for batch_idx in range(X_train_shape[0]):
-            for code_idx in range(args.code_rate_n):
+        fwd_noise = np.zeros(noise_shape)
+        for batch_idx in range(noise_shape[0]):
+            for code_idx in range(noise_shape[2]):
 
                 good = True
-                for time_idx in range(X_train_shape[1]):
+                for time_idx in range(noise_shape[1]):
                     if good:
                         if test_sigma == 'default':
                             fwd_noise[batch_idx,time_idx, code_idx] = bsc_k[batch_idx,time_idx, code_idx]
@@ -80,7 +80,7 @@ def generate_noise(X_train_shape, args, test_sigma = 'default', snr_low = 0.0, s
                     else:
                         print('bad!!! something happens')
 
-        fwd_noise = torch.from_numpy(fwd_noise).type(torch.FloatTensor)* torch.randn((X_train_shape[0], X_train_shape[1], args.code_rate_n), dtype=torch.float)
+        fwd_noise = torch.from_numpy(fwd_noise).type(torch.FloatTensor)* torch.randn(noise_shape, dtype=torch.float)
 
     elif args.channel == 'ge':
         #G-E discrete channel
@@ -89,12 +89,12 @@ def generate_noise(X_train_shape, args, test_sigma = 'default', snr_low = 0.0, s
         bsc_k = 1.0        # accuracy on good state
         bsc_h = this_sigma# accuracy on good state
 
-        fwd_noise = np.zeros((X_train_shape[0], X_train_shape[1], args.code_rate_n))
-        for batch_idx in range(X_train_shape[0]):
-            for code_idx in range(args.code_rate_n):
+        fwd_noise = np.zeros(noise_shape)
+        for batch_idx in range(noise_shape[0]):
+            for code_idx in range(noise_shape[2]):
 
                 good = True
-                for time_idx in range(X_train_shape[1]):
+                for time_idx in range(noise_shape[1]):
                     if good:
                         tmp = np.random.choice([0.0, 1.0], p=[1-bsc_k, bsc_k])
                         fwd_noise[batch_idx,time_idx, code_idx] = tmp
@@ -110,10 +110,9 @@ def generate_noise(X_train_shape, args, test_sigma = 'default', snr_low = 0.0, s
 
     else:
         # Unspecific channel, use AWGN channel.
-        fwd_noise  = this_sigma * torch.randn((X_train_shape[0], X_train_shape[1], args.code_rate_n), dtype=torch.float)
+        fwd_noise  = this_sigma * torch.randn(noise_shape, dtype=torch.float)
 
     return fwd_noise
-
 
 
 

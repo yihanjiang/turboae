@@ -19,6 +19,7 @@ def get_args():
                                              'rate3_cnn2d',
                                              'Turbo_rate3_757',        # Turbo Code, rate 1/3, 757.
                                              'Turbo_rate3_lte',        # Turbo Code, rate 1/3, LTE.
+                                             'turboae_2int', # experimental, use multiple interleavers
                                             ],
                         default='TurboAE_rate3_cnn2d')
 
@@ -33,6 +34,7 @@ def get_args():
                                              'nbcjr_rate3',        # NeuralBCJR Decoder, rate 1/3, allow ft size.
                                              'rate3_cnn',           # CNN Encoder, rate 1/3. No Interleaver
                                              'rate3_cnn2d',
+                                             'turboae_2int', # experimental, use multiple interleavers
                                             ],
                         default='TurboAE_rate3_cnn2d')
     ################################################################
@@ -81,7 +83,7 @@ def get_args():
     parser.add_argument('-extrinsic', type=int, default=1)
     parser.add_argument('-num_iter_ft', type=int, default=5)
     parser.add_argument('-is_interleave', type=int, default=1, help='0 is not interleaving, 1 is fixed interleaver, >1 is random interleaver')
-    parser.add_argument('-is_same_interleaver', type=int, default=0, help='not random interleaver, potentially finetune?')
+    parser.add_argument('-is_same_interleaver', type=int, default=1, help='not random interleaver, potentially finetune?')
     parser.add_argument('-is_parallel', type=int, default=0)
     # CNN related
     parser.add_argument('-enc_kernel_size', type=int, default=5)
@@ -91,12 +93,14 @@ def get_args():
     parser.add_argument('-enc_num_layer', type=int, default=2)
     parser.add_argument('-dec_num_layer', type=int, default=5)
 
-    parser.add_argument('-enc_num_unit', type=int, default=100, help = 'This is CNN number of filters, and RNN units')
+
     parser.add_argument('-dec_num_unit', type=int, default=100, help = 'This is CNN number of filters, and RNN units')
+    parser.add_argument('-enc_num_unit', type=int, default=100, help = 'This is CNN number of filters, and RNN units')
 
     parser.add_argument('-enc_act', choices=['tanh', 'selu', 'relu', 'elu', 'sigmoid', 'linear'], default='elu', help='only elu works')
     parser.add_argument('-dec_act', choices=['tanh', 'selu', 'relu', 'elu', 'sigmoid', 'linear'], default='linear')
 
+    parser.add_argument('-num_ber_puncture', type=int, default=5, help = 'Puncture bad BER positions')
 
     ################################################################
     # Training ALgorithm related parameters
@@ -132,6 +136,29 @@ def get_args():
                         choices=['block_norm','block_norm_ste'],
                         default='block_norm')
     parser.add_argument('-enc_truncate_limit', type=float, default=0, help='0 means no truncation')
+
+    ################################################################
+    # Modulation related parameters
+    ################################################################
+    parser.add_argument('-mod_rate', type=int, default=2, help = 'code: (B, L, R), mode_output (B, L*R/mod_rate, 2)')
+    parser.add_argument('-mod_num_layer', type=int, default=1, help = '')
+    parser.add_argument('-mod_num_unit', type=int, default=20, help = '')
+    parser.add_argument('-demod_num_layer', type=int, default=1, help = '')
+    parser.add_argument('-demod_num_unit', type=int, default=20, help = '')
+
+    parser.add_argument('-mod_lr', type = float, default=0.005, help='modulation leanring rate')
+    parser.add_argument('-demod_lr', type = float, default=0.005, help='demodulation leanring rate')
+
+    parser.add_argument('-num_train_mod', type=int, default=1, help = '')
+    parser.add_argument('-num_train_demod', type=int, default=5, help = '')
+
+    parser.add_argument('-mod_pc',
+                        choices=['qpsk','symbol_power', 'block_power'],
+                        default='block_power')
+
+    parser.add_argument('--no_code_norm', action='store_true', default=False,
+                        help='the output of encoder is not normalized. Modulation do the work')
+
 
 
     ################################################################

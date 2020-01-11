@@ -52,7 +52,7 @@ def train(epoch, model, optimizer, args, use_cuda = False, verbose = True, mode 
         else:
             X_train    = torch.randint(0, 2, (args.batch_size, block_len, args.code_rate_k), dtype=torch.float)
 
-        noise_shape = (args.batch_size, args.block_len, args.code_rate_n)
+        noise_shape = (args.batch_size, int(args.block_len * args.code_rate_n /args.mod_rate), args.mod_rate)
         # train encoder/decoder with different SNR... seems to be a good practice.
         if mode == 'encoder':
             fwd_noise  = generate_noise(noise_shape, args, snr_low=args.train_enc_channel_low, snr_high=args.train_enc_channel_high, mode = 'encoder')
@@ -96,7 +96,9 @@ def validate(model, optimizer, args, use_cuda = False, verbose = True):
         num_test_batch = int(args.num_block/args.batch_size * args.test_ratio)
         for batch_idx in range(num_test_batch):
             X_test     = torch.randint(0, 2, (args.batch_size, args.block_len, args.code_rate_k), dtype=torch.float)
-            noise_shape = (args.batch_size, args.block_len, args.code_rate_n)
+
+            noise_shape = (args.batch_size, int(args.block_len * args.code_rate_n /args.mod_rate), args.mod_rate)
+
             fwd_noise  = generate_noise(noise_shape, args,
                                         snr_low=args.train_enc_channel_low,
                                         snr_high=args.train_enc_channel_low)
@@ -165,7 +167,8 @@ def test(model, args, block_len = 'default',use_cuda = False):
             num_test_batch = int(args.num_block/(args.batch_size))
             for batch_idx in range(num_test_batch):
                 X_test     = torch.randint(0, 2, (args.batch_size, block_len, args.code_rate_k), dtype=torch.float)
-                fwd_noise  = generate_noise(X_test.shape, args, test_sigma=sigma)
+                noise_shape = (args.batch_size, int(args.block_len * args.code_rate_n /args.mod_rate), args.mod_rate)
+                fwd_noise  = generate_noise(noise_shape, args, test_sigma=sigma)
 
                 X_test, fwd_noise= X_test.to(device), fwd_noise.to(device)
 
@@ -194,7 +197,8 @@ def test(model, args, block_len = 'default',use_cuda = False):
                 test_ber_punc, test_bler_punc = .0, .0
                 for batch_idx in range(num_test_batch):
                     X_test     = torch.randint(0, 2, (args.batch_size, block_len, args.code_rate_k), dtype=torch.float)
-                    fwd_noise  = generate_noise(X_test.shape, args, test_sigma=sigma)
+                    noise_shape = (args.batch_size, int(args.block_len * args.code_rate_n /args.mod_rate), args.mod_rate)
+                    fwd_noise  = generate_noise(noise_shape, args, test_sigma=sigma)
                     X_test, fwd_noise= X_test.to(device), fwd_noise.to(device)
 
                     X_hat_test, the_codes = model(X_test, fwd_noise)
