@@ -37,7 +37,7 @@ Also support DeepTurbo for paper: `Y. Jiang, H. Kim, H. Asnani, S. Kannan, S. Oh
 
 Feel free to ask me any question! yij021@uw.edu
 
-# What is new (12/03/2019): 
+# What is new (01/15/2019): 
 ## 1. Camera ready paper is on [Arxiv](https://arxiv.org/abs/1911.03038)
 Here is the [Slides](https://github.com/yihanjiang/turboae/blob/master/docs/TurboAE_slides.pdf), presented by Dr. Hyeji Kim in Allerton Conference.
 I am working on the poster, and the poster will be out shortly. The plot result .py files will be out soon.
@@ -53,6 +53,9 @@ Current *.pt in './models/' are not the best model. (But you can fine-tune them 
 
 ## 4. Experimental: I find using DenseNet is better than just CNN-1D. Will update code very soon.
 The performance is even exceeding the result in paper, which I am verifying.
+
+## 5. Experimental: Interleaver Optimization.
+Glad to try the suggestion got from NeurIPS: optimize the interleaver. I do find a few random interleavers show quite different performance. I am working on it now.
 
 
 # Run experiment for Turbo AE:
