@@ -60,7 +60,7 @@ Glad to try the suggestion got from NeurIPS: optimize the interleaver. I do find
 
 # Run experiment for Turbo AE:
 
-
+Before running, run 'mkdir ./logs/' to put folder for logs.
 
 (1) Test pre-trained model, just enforce `-num_epoch 0`:
 
