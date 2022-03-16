@@ -1,4 +1,6 @@
 # Turbo AE
+[New on 03/16/2022] We find a bug on the test function (the performance is measured on fixed noise rather than random noise), with updated test function, the BER can improve for at least 0.5dB. The result in the paper doesn't move much. So we can still trust the paper's result.
+
 Turbo Autoencoder code for paper: `Y. Jiang, H. Kim, H. Asnani, S. Kannan, S. Oh, P. Viswanath, "Turbo Autoencoder: Deep learning based channel code for point-to-point communication channels" Conference on Neural Information Processing Systems (NeurIPS), Vancouver, December 2019` 
 
 At medium block length, we can achieve comparable performance to near-optimal codes such as LDPC, Polar, and Turbo Code, solely via gradient descent! 
