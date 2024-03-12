@@ -3,7 +3,8 @@
 # Authors: Veeresh Taranalli <veeresht@gmail.com>
 # License: BSD 3-Clause
 
-from fractions import gcd
+#from fractions import gcd
+from math import gcd
 from numpy import array, arange, concatenate, convolve
 
 from commpy.channelcoding.gfields import GF, polymultiply, poly_to_string
