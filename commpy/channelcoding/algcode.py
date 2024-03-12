@@ -2,9 +2,11 @@
 
 # Authors: Veeresh Taranalli <veeresht@gmail.com>
 # License: BSD 3-Clause
-
-#from fractions import gcd
-from math import gcd
+import sys
+if sys.version_info[:2] > (3,9):
+    from math import gcd
+else:
+    from fractions import gcd
 from numpy import array, arange, concatenate, convolve
 
 from commpy.channelcoding.gfields import GF, polymultiply, poly_to_string
